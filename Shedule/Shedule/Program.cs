@@ -40,14 +40,14 @@ namespace Shedule
             Student stud2 = new Student("stud2", 3, Lessons.Informatic);
             //Console.WriteLine(stud2.ToString());
 
-/*            SearchForTeachers(new List<Teacher> { Stepan, Kirill, AlexVyach },
-                              new List<Student> { veronica, Roman, stud1, stud2 });*/
+            SearchForTeachers(new List<Teacher> { Stepan, Kirill, AlexVyach },
+                              new List<Student> { veronica, Roman, stud1, stud2 });
 
-            var uniqListTeacher = GetAllTeacherCombinations(new List<Teacher> { Stepan, Kirill, AlexVyach });
+            /*var uniqListTeacher = GetAllTeacherCombinations(new List<Teacher> { Stepan, Kirill, AlexVyach });
             foreach (var Combination in uniqListTeacher)
             {
                 Console.WriteLine(String.Join(' ',Combination.Select(x=>x.Name)));
-            }
+            }*/
         }
         public static void SearchForTeachers(List<Teacher> teachers, List<Student>students)
         {
@@ -71,6 +71,11 @@ namespace Shedule
             int minCountOfTeachers = 0;
             List <Teacher> minCountTeachers = new List<Teacher>();
             var uniqListTeacher = GetAllTeacherCombinations(teachers);
+            foreach (var Combination in uniqListTeacher)
+            {
+                if (ClosureOfNeeds(Combination,PersonPerLesson))
+                    Console.WriteLine(String.Join(' ', Combination.Select(x => x.Name)));
+            }
         }
 
         public static List<List<Teacher>> GetAllTeacherCombinations(List<Teacher> teachers)
@@ -92,23 +97,41 @@ namespace Shedule
                 return;
             }
 
-            // Включаем текущего учителя
             current.Add(teachers[index]);
             GenerateCombinations(teachers, index + 1, current, result);
-            current.RemoveAt(current.Count - 1); // Backtrack
+            current.RemoveAt(current.Count - 1);
 
-            // Не включаем текущего учителя
             GenerateCombinations(teachers, index + 1, current, result);
         }
 
+        public static bool ClosureOfNeeds(List<Teacher> teachers, Dictionary<Lessons, int> personPerLesson)
+        {
+            // Словарь для подсчета количества преподавателей по каждому предмету
+            Dictionary<Lessons, int> coveredLessons = new Dictionary<Lessons, int>();
 
-        //вызов преподов на смену 
-        //public static List<List<Teacher>> CallTeachers(Dictionary<string, Boolean> subjectsT, Dictionary<string, int> subjectsS)//subjectsT - предметы препода. subjectsS - предметы ученика
-        //{
-        //    foreach(var  subject in subjectsT)
-        //    {
+            // Перебираем всех учителей и их предметы
+            foreach (var teacher in teachers)
+            {
+                foreach (var lesson in teacher.lessons)
+                {
+                    if (coveredLessons.ContainsKey(lesson))
+                        coveredLessons[lesson]++;
+                    else
+                        coveredLessons[lesson] = 1;
+                }
+            }
 
-        //    } 
-        //}
+            // Проверяем, все ли предметы покрыты в нужном количестве
+            foreach (var requirement in personPerLesson)
+            {
+                Lessons lesson = requirement.Key;
+                int requiredCount = requirement.Value;
+
+                if (!coveredLessons.TryGetValue(lesson, out int actualCount) || actualCount < requiredCount)
+                    return false;  // Предмет не покрыт или преподавателей недостаточно
+            }
+
+            return true;
+        }
     }
 }
