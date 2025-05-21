@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Shedule
 {
-    internal class student
+    internal class Student
     {
 
         public string Name {  get; set; }
@@ -15,13 +15,11 @@ namespace Shedule
         public int Time { get; set; }
         public Lessons Lessons { get; set; }
 
-        public student(string name,int time, Lessons lessons)
+        public Student(string name,int time, Lessons lessons)
         {
             Name = name;
             Time = time;
             Lessons = lessons;
-
-
         }
 
         public override string ToString()
@@ -32,11 +30,6 @@ namespace Shedule
         public static void test()
         {
 
-
-
         }
-
-
-
     }
 }
