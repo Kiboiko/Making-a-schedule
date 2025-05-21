@@ -28,10 +28,41 @@ namespace Shedule
             
             Student veronica = new Student("Veronica", 3, Lessons.Mathematic);
             Console.WriteLine(veronica.ToString());
+
+            Student Roman = new Student("Roman", 3, Lessons.Mathematic);
+            Console.WriteLine(Roman.ToString());
+
+            Student stud1 = new Student("stud1", 3, Lessons.Physic);
+            Console.WriteLine(stud1.ToString());
+
+            Student stud2 = new Student("stud2", 3, Lessons.Informatic);
+            Console.WriteLine(stud2.ToString());
+
+            SearchForTeachers(new List<Teacher> { Stepan,Kirill,AlexVyach},
+                              new List<Student> { veronica,Roman,stud1,stud2 });
         }
-        public List <Teacher> SearchForTeachers(List<Teacher> teachers, List<Student>)
+        public static void SearchForTeachers(List<Teacher> teachers, List<Student>students)
         {
             List<Teacher> Ans = new List<Teacher>();
+            Dictionary<Lessons,int> PersonPerLesson = new Dictionary<Lessons, int>();
+            foreach (Student student in students)
+            {
+                if (!PersonPerLesson.ContainsKey(student.Lessons))
+                {
+                    PersonPerLesson[student.Lessons] = 1;
+                } else
+                {
+                    PersonPerLesson[student.Lessons] += 1;
+                }
+            }
+            foreach (Lessons lesson in PersonPerLesson.Keys)
+            {
+                Console.WriteLine($"{lesson} - {PersonPerLesson[lesson]}");
+            }
+
+            int minCountOfTeachers = 0;
+            List <Teacher> minCountTeachers = new List<Teacher>();
+            foreach ()
         }
     }
 }
