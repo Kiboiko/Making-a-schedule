@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Shedule
 {
@@ -39,8 +40,8 @@ namespace Shedule
             Student stud2 = new Student("stud2", 3, Lessons.Informatic);
             //Console.WriteLine(stud2.ToString());
 
-            /*SearchForTeachers(new List<Teacher> { Stepan,Kirill,AlexVyach},
-                              new List<Student> { veronica,Roman,stud1,stud2 });*/
+/*            SearchForTeachers(new List<Teacher> { Stepan, Kirill, AlexVyach },
+                              new List<Student> { veronica, Roman, stud1, stud2 });*/
 
             var uniqListTeacher = GetAllTeacherCombinations(new List<Teacher> { Stepan, Kirill, AlexVyach });
             foreach (var Combination in uniqListTeacher)
@@ -99,5 +100,15 @@ namespace Shedule
             // Не включаем текущего учителя
             GenerateCombinations(teachers, index + 1, current, result);
         }
+
+
+        //вызов преподов на смену 
+        //public static List<List<Teacher>> CallTeachers(Dictionary<string, Boolean> subjectsT, Dictionary<string, int> subjectsS)//subjectsT - предметы препода. subjectsS - предметы ученика
+        //{
+        //    foreach(var  subject in subjectsT)
+        //    {
+
+        //    } 
+        //}
     }
 }
