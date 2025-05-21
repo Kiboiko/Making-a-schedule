@@ -25,8 +25,9 @@ namespace Shedule
                 new List<Lessons> { Lessons.Mathematic, Lessons.Informatic, Lessons.Physic },
                 10);
             Console.WriteLine(AlexVyach.ToString());
-
-
+            
+            Student veronica = new Student("Veronica", 3, Lessons.Mathematic);
+            Console.WriteLine(veronica.ToString());
         }
         public List <Teacher> SearchForTeachers(List<Teacher> teachers, List<Student>)
         {
