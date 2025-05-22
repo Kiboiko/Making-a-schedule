@@ -33,6 +33,17 @@ namespace Shedule
             var TeachList = new List<Teacher> { Stepan,Kirill,Alexander};
             var studList = new List<Student> { stud1,stud2,stud3,stud4};
             mainMethod.SearchForTeachers(TeachList, studList);
+
+            var parser = new ExcelParser();
+            var studentsFromExcel = parser.ParseStudents("example.xlsx");
+
+            // Вывод студентов из Excel
+            Console.WriteLine("\nСтуденты из Excel:");
+            foreach (var student in studentsFromExcel)
+            {
+                Console.WriteLine(student.ToString());
+                Console.WriteLine("------------------");
+            }
         }
         
 
