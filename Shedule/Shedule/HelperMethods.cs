@@ -10,28 +10,25 @@ namespace Shedule
     {
         public static List<List<Teacher>> GetAllTeacherCombinations(List<Teacher> teachers)
         {
-            var result = new List<List<Teacher>>();
-            GenerateCombinations(teachers, 0, new List<Teacher>(), result);
-            return result;
+            return GenerateCombinations(teachers).ToList();
         }
 
-        private static void GenerateCombinations(
-        List<Teacher> teachers,
-        int index,
-        List<Teacher> current,
-        List<List<Teacher>> result)
+        private static IEnumerable<List<Teacher>> GenerateCombinations(List<Teacher> teachers)
         {
-            if (index == teachers.Count)
+            int totalCombinations = 1 << teachers.Count;
+
+            for (int mask = 0; mask < totalCombinations; mask++)
             {
-                result.Add(new List<Teacher>(current));
-                return;
+                var combination = new List<Teacher>();
+                for (int i = 0; i < teachers.Count; i++)
+                {
+                    if ((mask & (1 << i)) != 0)
+                    {
+                        combination.Add(teachers[i]);
+                    }
+                }
+                yield return combination;
             }
-
-            current.Add(teachers[index]);
-            GenerateCombinations(teachers, index + 1, current, result);
-            current.RemoveAt(current.Count - 1);
-
-            GenerateCombinations(teachers, index + 1, current, result);
         }
 
         public static bool ClosureOfNeeds(List<Teacher> teachers, Dictionary<Lessons, int> personPerLesson)

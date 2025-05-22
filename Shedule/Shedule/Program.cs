@@ -34,8 +34,5 @@ namespace Shedule
             var studList = new List<Student> { stud1,stud2,stud3,stud4};
             mainMethod.SearchForTeachers(TeachList, studList);
         }
-        
-
-        
     }
 }

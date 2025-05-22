@@ -28,18 +28,28 @@ namespace Shedule
                 Console.WriteLine($"{lesson} - {PersonPerLesson[lesson]}");
             }
 
-            int minCountOfTeachers = 0;
-            List<Teacher> minCountTeachers = new List<Teacher>();
+            int minCountOfTeachers = int.MaxValue;
+            List<List<Teacher>> minCountTeachersList = new List<List<Teacher>>();
             var uniqListTeacher = HelperMethods.GetAllTeacherCombinations(teachers);
             foreach (var Combination in uniqListTeacher)
             {
-                if (HelperMethods.ClosureOfNeeds(Combination, PersonPerLesson))
-                    Console.WriteLine(String.Join(' ', Combination.Select(x => x.Name)));
+                if (HelperMethods.ClosureOfNeeds(Combination, PersonPerLesson) &&
+                    Combination.Count <= minCountOfTeachers)
+                {
+                    minCountOfTeachers = Combination.Count;
+                    if (Combination.Count == minCountOfTeachers)
+                        minCountTeachersList.Add(Combination);
+                    else
+                    {
+                        minCountTeachersList.Clear();
+                        minCountTeachersList.Add(Combination);
+                    }
+                }
+            }
+            foreach (var comb in minCountTeachersList)
+            {
+                Console.WriteLine(String.Join(' ', comb.Select(x => x.Name)));
             }
         }
-    
-        
-    
-    
     }
 }
