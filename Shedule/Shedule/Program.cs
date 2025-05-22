@@ -6,48 +6,34 @@ namespace Shedule
 {
     public enum Lessons
     {
-        Mathematic,
+        Math,
         Physic,
         Informatic
     }
     class Program
     {
         static void Main()
-        {   
-            var Stepan = new Teacher("Stepan", 
-                new List<Lessons> { Lessons.Mathematic, Lessons.Informatic },
-                1);
-            //Console.WriteLine(Stepan.ToString());
-            var Kirill = new Teacher("Kirill", 
-                new List<Lessons> { Lessons.Mathematic, Lessons.Informatic },
-                1);
-            //Console.WriteLine(Kirill.ToString());
+        {
+            var Stepan = new Teacher("Stepan", "14:00", "20:00",
+                new List<Lessons> { Lessons.Math, Lessons.Informatic }, 1);
+            Console.WriteLine(Stepan.ToString());
 
-            var AlexVyach = new Teacher("Aleksandr Vyacheslavovich",
-                new List<Lessons> { Lessons.Mathematic, Lessons.Informatic, Lessons.Physic },
-                10);
-            //Console.WriteLine(AlexVyach.ToString());
-            
-            Student veronica = new Student("Veronica", 3, Lessons.Mathematic);
-           // Console.WriteLine(veronica.ToString());
+            var Kirill = new Teacher("Kirill", "15:00", "19:00",
+                new List<Lessons> { Lessons.Math, Lessons.Informatic }, 1);
+            Console.WriteLine(Kirill.ToString());
+            var Alexandr = new Teacher("Alxandr", "12:00", "21:00",
+                new List<Lessons> { Lessons.Math, Lessons.Informatic, Lessons.Physic }, 10);
+            Console.WriteLine(Alexandr.ToString());
 
-            Student Roman = new Student("Roman", 3, Lessons.Mathematic);
-            //Console.WriteLine(Roman.ToString());
+            var stud1 = new Student("Veronica","18:00","20:00",Lessons.Math);
+            var stud2 = new Student("Roman", "16:00", "18:00", Lessons.Informatic);
+            var stud3 = new Student("Nikita", "17:00", "20:00", Lessons.Math);
+            var stud4 = new Student("Arthur", "14:00", "17:00", Lessons.Physic);
+            Console.WriteLine($"{stud1.ToString()}\n" +
+                $"{stud2.ToString()}\n" +
+                $"{stud3.ToString()}\n" +
+                $"{stud4.ToString()}\n");
 
-            Student stud1 = new Student("stud1", 3, Lessons.Physic);
-            //Console.WriteLine(stud1.ToString());
-
-            Student stud2 = new Student("stud2", 3, Lessons.Informatic);
-            //Console.WriteLine(stud2.ToString());
-
-            SearchForTeachers(new List<Teacher> { Stepan, Kirill, AlexVyach },
-                              new List<Student> { veronica, Roman, stud1, stud2 });
-
-            /*var uniqListTeacher = GetAllTeacherCombinations(new List<Teacher> { Stepan, Kirill, AlexVyach });
-            foreach (var Combination in uniqListTeacher)
-            {
-                Console.WriteLine(String.Join(' ',Combination.Select(x=>x.Name)));
-            }*/
         }
         public static void SearchForTeachers(List<Teacher> teachers, List<Student>students)
         {
@@ -55,12 +41,12 @@ namespace Shedule
             Dictionary<Lessons,int> PersonPerLesson = new Dictionary<Lessons, int>();
             foreach (Student student in students)
             {
-                if (!PersonPerLesson.ContainsKey(student.Lessons))
+                if (!PersonPerLesson.ContainsKey(student.Subject))
                 {
-                    PersonPerLesson[student.Lessons] = 1;
+                    PersonPerLesson[student.Subject] = 1;
                 } else
                 {
-                    PersonPerLesson[student.Lessons] += 1;
+                    PersonPerLesson[student.Subject] += 1;
                 }
             }
             foreach (Lessons lesson in PersonPerLesson.Keys)
@@ -112,7 +98,7 @@ namespace Shedule
             // Перебираем всех учителей и их предметы
             foreach (var teacher in teachers)
             {
-                foreach (var lesson in teacher.lessons)
+                foreach (var lesson in teacher.Subjects)
                 {
                     if (coveredLessons.ContainsKey(lesson))
                         coveredLessons[lesson]++;

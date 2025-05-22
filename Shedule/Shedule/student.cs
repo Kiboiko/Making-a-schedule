@@ -7,29 +7,20 @@ using System.Threading.Tasks;
 
 namespace Shedule
 {
-    internal class Student
+    public class Student : Person
     {
+        public Lessons Subject { get;}
 
-        public string Name {  get; set; }
-
-        public int Time { get; set; }
-        public Lessons Lessons { get; set; }
-
-        public Student(string name,int time, Lessons lessons)
+        public Student(string name, string startOfStudyTime, string endOfStudyTime,Lessons subject) 
+            : base(name, startOfStudyTime, endOfStudyTime)
         {
-            Name = name;
-            Time = time;
-            Lessons = lessons;
+            Subject = subject;
         }
 
         public override string ToString()
         {
-            return $"Имя: {Name} \n Время{Time} \n Предмет{Lessons}";
-        }
-
-        public static void test()
-        {
-
+            return $"Класс: Ученик\nИмя: {Name} \nВремя начала:{StartOfStudyingTime.ToString("HH:mm")}\n" +
+                $"Время конца:{EndOfStudyingTime.ToString("HH:mm")} \nПредмет:{Subject}";
         }
     }
 }
