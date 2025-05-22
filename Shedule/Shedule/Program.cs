@@ -13,41 +13,15 @@ namespace Shedule
     class Program
     {
         static void Main()
-        {   
-            var Stepan = new Teacher("Stepan", 
-                new List<Lessons> { Lessons.Mathematic, Lessons.Informatic },
-                1);
-            //Console.WriteLine(Stepan.ToString());
-            var Kirill = new Teacher("Kirill", 
-                new List<Lessons> { Lessons.Mathematic, Lessons.Informatic },
-                1);
-            //Console.WriteLine(Kirill.ToString());
+        {
+            var Stepan = new Teacher("Stepan", "14:00", "20:00",
+                new List<Lessons> { Lessons.Mathematic, Lessons.Informatic }, 1);
 
-            var AlexVyach = new Teacher("Aleksandr Vyacheslavovich",
-                new List<Lessons> { Lessons.Mathematic, Lessons.Informatic, Lessons.Physic },
-                10);
-            //Console.WriteLine(AlexVyach.ToString());
-            
-            Student veronica = new Student("Veronica", 3, Lessons.Mathematic);
-           // Console.WriteLine(veronica.ToString());
+            var Kirill = new Teacher("Kirill", "15:00", "19:00",
+                new List<Lessons> { Lessons.Mathematic, Lessons.Informatic }, 1);
 
-            Student Roman = new Student("Roman", 3, Lessons.Mathematic);
-            //Console.WriteLine(Roman.ToString());
-
-            Student stud1 = new Student("stud1", 3, Lessons.Physic);
-            //Console.WriteLine(stud1.ToString());
-
-            Student stud2 = new Student("stud2", 3, Lessons.Informatic);
-            //Console.WriteLine(stud2.ToString());
-
-            SearchForTeachers(new List<Teacher> { Stepan, Kirill, AlexVyach },
-                              new List<Student> { veronica, Roman, stud1, stud2 });
-
-            /*var uniqListTeacher = GetAllTeacherCombinations(new List<Teacher> { Stepan, Kirill, AlexVyach });
-            foreach (var Combination in uniqListTeacher)
-            {
-                Console.WriteLine(String.Join(' ',Combination.Select(x=>x.Name)));
-            }*/
+            var Alexandr = new Teacher("Alxandr", "12:00", "21:00",
+                new List<Lessons> { Lessons.Mathematic, Lessons.Informatic, Lessons.Physic }, 10);
         }
         public static void SearchForTeachers(List<Teacher> teachers, List<Student>students)
         {
