@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace Shedule
 {
     public enum Lessons
     {
-        [Display(Name = "математика")]
+        [Description("математика")]
         Math,
-        [Display(Name = "физика")]
+        [Description("физика")]
         Physic,
-        [Display(Name = "информатика")]
+        [Description("информатика")]
         Informatic
     }
 }

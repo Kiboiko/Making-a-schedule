@@ -41,13 +41,14 @@ namespace Shedule
                         string timeEnd = timeEndCell.Value.ToString();
 
                         // Преобразование предмета в enum
-                        if (Enum.TryParse<Lessons>(subjectStr, true, out Lessons subject))
+                        try
                         {
+                            var subject = subjectStr.ParseFromDescription<Lessons>();
                             students.Add(new Student(name, timeStart, timeEnd, subject));
                         }
-                        else
+                        catch (ArgumentException ex)
                         {
-                            Console.WriteLine($"Ошибка парсинга предмета: {subjectStr} в строке {row}");
+                            Console.WriteLine($"Ошибка парсинга: {ex.Message} в строке {row}");
                         }
                     }
                 }
