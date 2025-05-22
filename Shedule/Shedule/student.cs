@@ -19,7 +19,8 @@ namespace Shedule
 
         public override string ToString()
         {
-            return $"Имя: {Name} \nВремя начала:{StartOfStudyingTime.ToString("HH:mm")}\nВремя конца:{EndOfStudyingTime.ToString("HH:mm")} \nПредмет{Subject}";
+            return $"Класс: Ученик\nИмя: {Name} \nВремя начала:{StartOfStudyingTime.ToString("HH:mm")}\n" +
+                $"Время конца:{EndOfStudyingTime.ToString("HH:mm")} \nПредмет:{Subject}";
         }
     }
 }

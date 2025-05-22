@@ -9,15 +9,16 @@ namespace Shedule
     public class Person
     {
         public string Name { get;}
-        public int StartOfStudyingTime { get;}
-        public int EndOfStudyingTime { get; }
+        public TimeOnly StartOfStudyingTime { get;}
+        public TimeOnly EndOfStudyingTime { get; }
         public Person(string name, string startOfStudyTime, string endOfStudyTime)
         {
             Name = name;
-            if (TimeOnly.TryParse(startOfStudyTime, out TimeOnly StartOfStudyingTime) && 
-                TimeOnly.TryParse(endOfStudyTime, out TimeOnly EndOfStudyingTime))
+            if (TimeOnly.TryParse(startOfStudyTime, out TimeOnly Start) && 
+                TimeOnly.TryParse(endOfStudyTime, out TimeOnly End))
             {
-                Console.WriteLine($"{StartOfStudyingTime.ToString("HH:mm")}   {EndOfStudyingTime.ToString("HH:mm")}");
+                StartOfStudyingTime = Start;
+                EndOfStudyingTime = End;
             } else
             {
                 Console.WriteLine("Некорректный формат времени");
