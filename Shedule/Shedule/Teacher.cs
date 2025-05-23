@@ -20,7 +20,7 @@ namespace Shedule
 
         public override string ToString()
         {
-            return $"Имя: {Name}\nКласс: Преподователь\n" +
+            return $"Имя: {Name}\nКласс: Преподаватель\n" +
                 $"Предметы: {string.Join(',', Subjects)}\nПриоритет: {Priority}\n" +
                 $"Время начала:{StartOfStudyingTime.ToString("HH:mm")}\n" +
                 $"Время конца:{EndOfStudyingTime.ToString("HH:mm")}";
