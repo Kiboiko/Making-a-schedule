@@ -61,18 +61,23 @@ namespace Shedule
         static void Main()
         {
             var loader = new ExcelDataLoader();
-            var (teachers, students) = loader.LoadData("example.xlsx");
+            var (teachers, students) = loader.LoadData("../../../example.xlsx");
 
             // Проверка загруженных данных
             Console.WriteLine("=== Преподаватели ===");
             teachers.ForEach(t => Console.WriteLine(t));
-
+            
+            
             Console.WriteLine("\n=== Студенты ===");
-            students.ForEach(s => Console.WriteLine(s));
+           // students.ForEach(s => Console.WriteLine(s));
 
             // Вызов метода подбора
             Console.WriteLine("\n=== Результат ===");
-            mainMethod.SearchForTeachers(teachers, students);
+            var MinT = mainMethod.GetMinTeachers(teachers, students);
+            foreach(var t in MinT)
+            {
+                Console.WriteLine(String.Join(' ', t.Select(x => x.Name)));
+            }
 
             Console.ReadLine();
         }
