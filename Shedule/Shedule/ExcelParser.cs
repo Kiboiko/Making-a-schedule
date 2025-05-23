@@ -82,15 +82,16 @@ namespace Shedule
         private List<Lessons> ParseSubjects(string input)
         {
             var subjects = new List<Lessons>();
-            foreach (var subject in input.Split(','))
+            foreach (var subject in input.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 try
                 {
-                    subjects.Add(subject.Trim().ParseFromDescription<Lessons>());
+                    var trimmedSubject = subject.Trim();
+                    subjects.Add(trimmedSubject.ParseFromDescription<Lessons>());
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Ошибка: {ex.Message}");
+                    Console.WriteLine($"Ошибка парсинга предмета '{subject}': {ex.Message}");
                 }
             }
             return subjects;

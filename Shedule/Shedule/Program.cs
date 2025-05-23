@@ -63,20 +63,26 @@ namespace Shedule
             var loader = new ExcelDataLoader();
             var (teachers, students) = loader.LoadData("../../../example.xlsx");
 
-            // Проверка загруженных данных
             Console.WriteLine("=== Преподаватели ===");
-            teachers.ForEach(t => Console.WriteLine(t));
-            
-            
-            Console.WriteLine("\n=== Студенты ===");
-           // students.ForEach(s => Console.WriteLine(s));
+            teachers.ForEach(t => Console.WriteLine($"{t.Name}: {string.Join(", ", t.Subjects)}"));
 
-            // Вызов метода подбора
-            Console.WriteLine("\n=== Результат ===");
+            Console.WriteLine("\n=== Студенты ===");
+            students.ForEach(s => Console.WriteLine($"{s.Name}: {s.Subject}"));
+
             var MinT = mainMethod.GetMinTeachers(teachers, students);
-            foreach(var t in MinT)
+            Console.WriteLine("\n=== Результат ===");
+
+            if (MinT.Count == 0)
             {
-                Console.WriteLine(String.Join(' ', t.Select(x => x.Name)));
+                Console.WriteLine("Нет подходящих комбинаций!");
+            }
+            else
+            {
+                foreach (var combo in MinT)
+                {
+                    Console.WriteLine($"Комбинация: {string.Join(", ", combo.Select(t => t.Name))}");
+                    Console.WriteLine($"Предметы: {string.Join(", ", combo.SelectMany(t => t.Subjects).Distinct())}");
+                }
             }
 
             Console.ReadLine();
