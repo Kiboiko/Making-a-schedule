@@ -18,22 +18,6 @@ namespace Shedule
             Priority = priority;
         }
 
-        public bool TryAddStudent()
-        {
-            if (_countStudents >= 4)
-                return false;
-        
-            _countStudents++;
-            return true;
-        }
-
-        // Метод для уменьшения счетчика (если ученик открепляется)
-        public void RemoveStudent()
-        {
-            if (_countStudents > 0)
-                _countStudents--;
-        }
-
         public override string ToString()
         {
             return $"Имя: {Name}\nКласс: Преподователь\n" +

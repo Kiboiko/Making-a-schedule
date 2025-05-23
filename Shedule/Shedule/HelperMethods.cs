@@ -27,94 +27,41 @@ namespace Shedule
                         combination.Add(teachers[i]);
                     }
                 }
-                yield return combination;
+                if (combination.Count > 0)
+                    yield return combination;
             }
         }
 
-        /*public static bool ClosureOfNeeds(List<Teacher> teachers, Dictionary<Lessons, int> personPerLesson)
+        public static bool ClosureOfNeeds(List<Teacher> teachers, Dictionary<Lessons, int> personPerLesson)
         {
-            // Словарь для подсчета преподавателей по предметам (с учетом их загрузки)
-            Dictionary<Lessons, int> availableTeachersPerLesson = new Dictionary<Lessons, int>();
+            // Словарь для подсчета количества преподавателей по каждому предмету
+            Dictionary<Lessons, int> coveredLessons = new Dictionary<Lessons, int>();
 
+            // Перебираем всех учителей и их предметы
             foreach (var teacher in teachers)
             {
                 foreach (var lesson in teacher.Subjects)
                 {
-                    // Если у преподавателя есть место (<4 учеников), учитываем его
-                    if (teacher.CountStudents < 4)
-                    {
-                        if (availableTeachersPerLesson.ContainsKey(lesson))
-                            availableTeachersPerLesson[lesson]++;
-                        else
-                            availableTeachersPerLesson[lesson] = 1;
-                    }
+                    if (coveredLessons.ContainsKey(lesson))
+                        coveredLessons[lesson]++;
+                    else
+                        coveredLessons[lesson] = 1;
                 }
             }
 
-            // Проверяем, хватает ли преподавателей с учетом их загрузки
+            // Проверяем, все ли предметы покрыты в нужном количестве
             foreach (var requirement in personPerLesson)
             {
                 Lessons lesson = requirement.Key;
                 int requiredCount = requirement.Value;
 
-                if (!availableTeachersPerLesson.TryGetValue(lesson, out int actualCount) || actualCount < requiredCount)
-                    return false;
-            }
-
-            return true;
-        }*/
-
-        public static bool ClosureOfNeeds(List<Teacher> teachers, Dictionary<Lessons, int> personPerLesson, List<Student> students)
-        {
-            // Словарь для подсчета доступных преподавателей по предметам (с учетом времени и нагрузки)
-            Dictionary<Lessons, int> availableTeachersPerLesson = new Dictionary<Lessons, int>();
-
-            foreach (var teacher in teachers)
-            {
-                foreach (var lesson in teacher.Subjects)
-                {
-                    // Проверяем, есть ли у преподавателя свободные места (<4 учеников)
-                    if (teacher.CountStudents >= 4)
-                        continue;
-
-                    // Проверяем, есть ли ученики по этому предмету
-                    if (!personPerLesson.ContainsKey(lesson))
-                        continue;
-
-                    // Проверяем, есть ли хотя бы один ученик, чье время пересекается с временем учителя
-                    bool hasTimeOverlap = students.Any(s =>
-                        s.Subject == lesson &&
-                        TimeOverlaps(s.StartOfStudyingTime, s.EndOfStudyingTime,
-                                     teacher.StartOfStudyingTime, teacher.EndOfStudyingTime));
-
-                    if (hasTimeOverlap)
-                    {
-                        if (availableTeachersPerLesson.ContainsKey(lesson))
-                            availableTeachersPerLesson[lesson]++;
-                        else
-                            availableTeachersPerLesson[lesson] = 1;
-                    }
-                }
-            }
-
-            // Проверяем, хватает ли преподавателей с учетом нагрузки и времени
-            foreach (var requirement in personPerLesson)
-            {
-                Lessons lesson = requirement.Key;
-                int requiredCount = requirement.Value;
-
-                if (!availableTeachersPerLesson.TryGetValue(lesson, out int actualCount) ||
-                    actualCount * 4 < requiredCount)  // Учитываем, что 1 учитель = максимум 4 ученика
-                    return false;
+                if (!coveredLessons.TryGetValue(lesson, out int actualCount) || actualCount < requiredCount)
+                    return false;  // Предмет не покрыт или преподавателей недостаточно
             }
 
             return true;
         }
 
-        // Проверяет, пересекаются ли два временных интервала
-        private static bool TimeOverlaps(TimeOnly start1, TimeOnly end1, TimeOnly start2, TimeOnly end2)
-        {
-            return start1 < end2 && start2 < end1;
-        }
+
     }
 }
