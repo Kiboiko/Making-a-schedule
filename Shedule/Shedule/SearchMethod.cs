@@ -13,16 +13,11 @@ namespace Shedule
         {
             List<List<Teacher>> res = new List<List<Teacher>>();
             List<List<Teacher>> uniqTeachers = HelperMethods.GetAllTeacherCombinations(teachers);
-            /*foreach(var t in uniqTeachers)
-            {
-                Console.WriteLine(string.Join(' ', t.Select(x => x.Name)));
-            }*/
             int minCount = int.MaxValue;
             foreach(var combo in uniqTeachers)
             {
                 if (School.CheckTeacherStudentAllocation(combo, students) && combo.Count != 0)
                 {
-                    //Console.WriteLine(string.Join(' ',combo.Select(x=>x.Name)));
                     if (combo.Count < minCount)
                     {
                         res.Clear();
@@ -36,6 +31,14 @@ namespace Shedule
             }
             return res;
         }
+
+        /*public static bool CheckComboTeacher(List<Teacher> teachers, List<Student> students)
+        {
+            TimeOnly minStudTime = students.Select(x=> x.StartOfStudyingTime).ToList().Min();
+            TimeOnly currentTime = TimeOnly.FromTimeSpan(TimeSpan.FromHours(minStudTime.Hour));
+            
+
+        }*/
 
         
     }
