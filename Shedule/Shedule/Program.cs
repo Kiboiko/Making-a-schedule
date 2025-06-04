@@ -53,7 +53,6 @@
 
 using System;
 using System.Collections.Generic;
-
 namespace Shedule
 {
     class Program
@@ -81,12 +80,12 @@ namespace Shedule
 
             Console.ReadLine();*/
 
-            TimeOnly curr = TimeOnly.FromTimeSpan(TimeSpan.FromHours(10));
+            /*TimeOnly curr = TimeOnly.FromTimeSpan(TimeSpan.FromHours(10));
             for (int i = 0; i < 100; i++)
             {
                 Console.WriteLine($"Итерация {i + 1}: {curr.ToLongTimeString()}");
                 curr = curr.AddMinutes(1);
-            }
+            }*/
 
             var stud1 = new Student("Veronica", "18:00", "20:00", Lessons.Math);
             var stud2 = new Student("Roman", "16:00", "18:00", Lessons.Informatic);
@@ -95,10 +94,22 @@ namespace Shedule
             var stud5 = new Student("stud5", "14:00", "17:00", Lessons.Physic);
             var stud6 = new Student("stud6", "14:00", "17:00", Lessons.Physic);
             var stud7 = new Student("stud7", "12:00", "17:00", Lessons.Physic);
+
+            var Stepan = new Teacher("Stepan", "14:00", "20:00",
+                new List<Lessons> { Lessons.Math, Lessons.Informatic, Lessons.Physic }, 1);
+
+            var Kirill = new Teacher("Kirill", "15:00", "19:00",
+                new List<Lessons> { Lessons.Math, Lessons.Informatic }, 1);
+
+            var Alexander = new Teacher("Alexander", "12:00", "21:00",
+                new List<Lessons> { Lessons.Math, Lessons.Informatic, Lessons.Physic }, 10);
+
             var studList = new List<Student> { stud1, stud2, stud3, stud4, stud5, stud6, stud7 };
-            TimeOnly minStudTime = studList.Select(x => x.StartOfStudyingTime).ToList().Min();
-            TimeOnly currentTime = TimeOnly.FromTimeSpan(TimeSpan.FromHours(minStudTime.Hour));
-            Console.WriteLine(currentTime.ToLongTimeString());
+            var TeachList = new List<Teacher> { Alexander, Stepan, Kirill };
+            foreach (var combo in mainMethod.GetTeacherComboForTheDay(students: studList, teachers: TeachList))
+            {
+                Console.WriteLine(String.Join(' ', combo.Select(x=> x.Name)));
+            }
         }
     }
 }
