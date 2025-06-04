@@ -61,7 +61,7 @@ namespace Shedule
         static void Main()
         {
             var loader = new ExcelDataLoader();
-            var (teachers, students) = loader.LoadData("../../../example.xlsx");
+            var (teachers, students) = loader.LoadData("../../../Эксперимент 1.xlsx");
 
             Console.WriteLine("=== Преподаватели ===");
             teachers.ForEach(t => Console.WriteLine($"{t.Name}: {string.Join(", ", t.Subjects)}"));

@@ -23,7 +23,7 @@ namespace Shedule
             {
                 using (var workbook = new XLWorkbook(filePath))
                 {
-                    var worksheet = workbook.Worksheet(1);
+                    var worksheet = workbook.Worksheet(3);// ВЫБОР ЛИСТА С КОТОРЫМ РАБОТАЕМ!!!!!!!
 
                     foreach (var row in worksheet.RowsUsed())
                     {
@@ -103,8 +103,8 @@ namespace Shedule
             {
                 return new Student(
                     name: row.Cell(2).Value.ToString().Trim(),
-                    startOfStudyTime: row.Cell(4).Value.ToString(),
-                    endOfStudyTime: row.Cell(5).Value.ToString(),
+                    startOfStudyTime: row.Cell(7).Value.ToString(),
+                    endOfStudyTime: row.Cell(8).Value.ToString(),
                     subject: row.Cell(3).Value.ToString().ParseFromDescription<Lessons>()
                 );
             }
