@@ -63,5 +63,5 @@
             var TeachList = new List<Teacher> { Alexander, Stepan, Kirill };
             foreach (var combo in mainMethod.GetTeacherComboForTheDay(students: studList, teachers: TeachList))
             {
-                Console.WriteLine(String.Join(' ', combo.Select(x=> x.Name)));
+                Console.WriteLine(String.Join(' ', combo.Select(x => x.Name)));
             }

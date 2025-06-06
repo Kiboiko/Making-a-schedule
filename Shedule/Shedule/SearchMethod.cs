@@ -34,8 +34,6 @@ namespace Shedule
 
         public static List<Teacher> GetActiveTeachersAtMinute(List<Teacher> teachers, TimeOnly time)
         {
-            /*TimeOnly minStudTime = students.Select(x => x.StartOfStudyingTime).ToList().Min();
-            TimeOnly currentTime = TimeOnly.FromTimeSpan(TimeSpan.FromHours(minStudTime.Hour));*/
             List<Teacher> res = new List<Teacher>();
             foreach (var teacher in teachers)
             {
@@ -101,8 +99,26 @@ namespace Shedule
                     res.Add(combo);
                 }
             }
-            return res.OrderByDescending(x => x.Select(y => y.Priority).Sum()).ToList();
+            //return res.OrderByDescending(x => x.Select(y => y.Priority).Sum()).ToList();
+            return res.OrderBy(x => x.Count()).ThenByDescending(x => x.Select(y => y.Priority).Sum()).ToList();
         }
+
+
+        public static void ShowWorkingTimeTeachers(List<Teacher> teachers, List<Student> students)
+        {
+            TimeOnly startStudTime = students.Select(x => x.StartOfStudyingTime).ToList().Min();
+            TimeOnly currentTime = TimeOnly.FromTimeSpan(TimeSpan.FromHours(9));
+            for (int i = 0; i < 660; i++)
+            {
+                currentTime = currentTime.AddMinutes(1);
+                /*Console.WriteLine($"{currentTime.ToString()},{String.Join(' ',
+                    School.WorkingTeachers(teachers, students).Select(x=>x.Name))}");*/
+                Console.WriteLine($"{currentTime.ToString()},{String.Join(' ',
+                    mainMethod.GetMinTeachers(teachers, students)[0].Select(x => x.Name))}");
+            }
+        }
+
+
 
 
     }

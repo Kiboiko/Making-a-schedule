@@ -44,29 +44,73 @@ namespace Shedule
 
 
             return unassignedStudents.Count == 0;
-            /*// Вывод результатов
-            Console.WriteLine("\nРезультат распределения:");
-            foreach (var (teacher, assignedStudents) in teacherAssignments)
+            
+        }
+
+        public static List<Teacher> WorkingTeachers (List<Teacher> teachers, List<Student> students)
+        {
+            var teacherAssignments = new Dictionary<Teacher, List<Student>>();
+            var unassignedStudents = new List<Student>();
+            var res = new List<Teacher>();
+
+
+            foreach (var teacher in teachers)
             {
-                Console.WriteLine($"{teacher.Name} ({string.Join(", ", teacher.Subjects)}) — учеников: {assignedStudents.Count} из 4");
-                foreach (var student in assignedStudents)
+                teacherAssignments[teacher] = new List<Student>();
+            }
+
+            // Сначала распределяем учеников с "редкими" предметами (где меньше учителей)
+            var studentsBySubjectAvailability = students
+                .OrderBy(s => teachers.Count(t => t.Subjects.Contains(s.Subject)))
+                .ToList();
+
+            foreach (var student in studentsBySubjectAvailability)
+            {
+                var availableTeachers = teachers
+                    .Where(t => t.Subjects.Contains(student.Subject) &&
+                                teacherAssignments[t].Count < 4)
+                    .OrderBy(t => teacherAssignments[t].Count); // Выбираем учителей с минимальной нагрузкой
+
+                var assignedTeacher = availableTeachers.FirstOrDefault();
+
+                if (assignedTeacher != null)
                 {
-                    Console.WriteLine($"  → {student.Name} ({student.Subject})");
+                    teacherAssignments[assignedTeacher].Add(student);
+                    res.Add(assignedTeacher);
+                }
+                else
+                {
+                    unassignedStudents.Add(student);
                 }
             }
 
-            if (unassignedStudents.Count > 0)
-            {
-                Console.WriteLine("\n❌ Не распределены:");
-                foreach (var student in unassignedStudents)
-                {
-                    Console.WriteLine($"- {student.Name} ({student.Subject})");
-                }
-                return false;
-            }
 
-            Console.WriteLine("\nВсе ученики распределены оптимально.");
-            return true;*/
+            return res.DistinctBy(x => x.Name).ToList();
+
+        }
+
+        public static List<List<Teacher>> GetMinTeachersInCombo(List<Teacher> teachers, List<Student> students)
+        {
+            List<List<Teacher>> res = new List<List<Teacher>>();
+            List<List<Teacher>> uniqTeachers = HelperMethods.GetAllTeacherCombinations(teachers);
+            int minCount = int.MaxValue;
+            foreach (var combo in uniqTeachers)
+            {
+                if (School.CheckTeacherStudentAllocation(combo, students) && combo.Count != 0)
+                {
+                    if (combo.Count < minCount)
+                    {
+                        res.Clear();
+                        res.Add(combo);
+                        minCount = combo.Count;
+                    }
+                    else if (combo.Count == minCount)
+                    {
+                        res.Add(combo);
+                    }
+                }
+            }
+            return res;
         }
     }
 }
