@@ -4,11 +4,11 @@ namespace Shedule
 {
     public enum Lessons
     {
-        [Description("мат")]
+        [Description("математика")]
         Math,
-        [Description("физ")]
+        [Description("физика")]
         Physic,
-        [Description("инф")]
+        [Description("информатика")]
         Informatic
     }
 }
