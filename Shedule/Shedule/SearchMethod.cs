@@ -8,64 +8,16 @@ namespace Shedule
 {
     public class mainMethod
     {
-        /*public static void SearchForTeachers(List<Teacher> teachers, List<Student> students)
-        {
-            List<Teacher> Ans = new List<Teacher>();
-            Dictionary<Lessons, int> PersonPerLesson = new Dictionary<Lessons, int>();
-            foreach (Student student in students)
-            {
-                if (!PersonPerLesson.ContainsKey(student.Subject))
-                {
-                    PersonPerLesson[student.Subject] = 1;
-                }
-                else
-                {
-                    PersonPerLesson[student.Subject] += 1;
-                }
-            }
-            foreach (Lessons lesson in PersonPerLesson.Keys)
-            {
-                Console.WriteLine($"{lesson} - {PersonPerLesson[lesson]}");
-            }
-
-            int minCountOfTeachers = int.MaxValue;
-            List<List<Teacher>> minCountTeachersList = new List<List<Teacher>>();
-            var uniqListTeacher = HelperMethods.GetAllTeacherCombinations(teachers);
-            foreach (var Combination in uniqListTeacher)
-            {
-                if (HelperMethods.ClosureOfNeeds(Combination, PersonPerLesson) &&
-                    Combination.Count <= minCountOfTeachers)
-                {
-                    minCountOfTeachers = Combination.Count;
-                    if (Combination.Count == minCountOfTeachers)
-                        minCountTeachersList.Add(Combination);
-                    else
-                    {
-                        minCountTeachersList.Clear();
-                        minCountTeachersList.Add(Combination);
-                    }
-                }
-            }
-            foreach (var comb in minCountTeachersList)
-            {
-                Console.WriteLine(String.Join(' ', comb.Select(x => x.Name)));
-            }
-        }*/
 
         public static List<List<Teacher>> GetMinTeachers(List<Teacher> teachers, List<Student> students)
         {
             List<List<Teacher>> res = new List<List<Teacher>>();
             List<List<Teacher>> uniqTeachers = HelperMethods.GetAllTeacherCombinations(teachers);
-            /*foreach(var t in uniqTeachers)
-            {
-                Console.WriteLine(string.Join(' ', t.Select(x => x.Name)));
-            }*/
             int minCount = int.MaxValue;
             foreach(var combo in uniqTeachers)
             {
                 if (School.CheckTeacherStudentAllocation(combo, students) && combo.Count != 0)
                 {
-                    //Console.WriteLine(string.Join(' ',combo.Select(x=>x.Name)));
                     if (combo.Count < minCount)
                     {
                         res.Clear();
@@ -79,5 +31,79 @@ namespace Shedule
             }
             return res;
         }
+
+        public static List<Teacher> GetActiveTeachersAtMinute(List<Teacher> teachers, TimeOnly time)
+        {
+            /*TimeOnly minStudTime = students.Select(x => x.StartOfStudyingTime).ToList().Min();
+            TimeOnly currentTime = TimeOnly.FromTimeSpan(TimeSpan.FromHours(minStudTime.Hour));*/
+            List<Teacher> res = new List<Teacher>();
+            foreach (var teacher in teachers)
+            {
+                if ((time >= teacher.StartOfStudyingTime) & (time <= teacher.EndOfStudyingTime))
+                {
+                    res.Add(teacher);
+                }
+            }
+            return res;
+
+        }
+
+        public static List<Student> GetActiveStudentsAtMinute(List<Student> students, TimeOnly time)
+        {
+            List<Student> res = new List<Student>();
+            foreach (var student in students)
+            {
+                if ((time >= student.StartOfStudyingTime) & (time <= student.EndOfStudyingTime))
+                {
+                    res.Add(student);
+                }
+            }
+            return res;
+
+        }
+
+        public static bool CheckTeachersComboPerMinute(List<Student> students, List<Teacher> teachers, TimeOnly time)
+        {
+            return School.CheckTeacherStudentAllocation(
+                GetActiveTeachersAtMinute(teachers,time), 
+                GetActiveStudentsAtMinute(students,time)
+                );
+        }
+
+
+        public static bool CheckTeachersComboForTheDay(List<Student> students, List<Teacher> teachers)
+        {
+            TimeOnly startStudTime = students.Select(x => x.StartOfStudyingTime).ToList().Min();
+            TimeOnly currentTime = TimeOnly.FromTimeSpan(TimeSpan.FromHours(9));
+            bool t = true;
+            for (int i = 0; i < 660; i++)
+            {
+                currentTime = currentTime.AddMinutes(1);
+                if (!CheckTeachersComboPerMinute(students, teachers, currentTime))
+                {
+                    t = false;
+                    break;
+                }
+            }
+            return t;
+        }
+
+
+        public static List<List<Teacher>> GetTeacherComboForTheDay(List<Student> students, List<Teacher> teachers)
+        {
+            List<List<Teacher>> uniqTeachers = HelperMethods.GetAllTeacherCombinations(teachers);
+            List<List<Teacher>> res = new List<List<Teacher>>();
+
+            foreach (var combo in uniqTeachers)
+            {
+                if (CheckTeachersComboForTheDay(students, combo))
+                {
+                    res.Add(combo);
+                }
+            }
+            return res.OrderByDescending(x => x.Select(y => y.Priority).Sum()).ToList();
+        }
+
+
     }
 }

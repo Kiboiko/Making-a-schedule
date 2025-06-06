@@ -53,7 +53,6 @@
 
 using System;
 using System.Collections.Generic;
-
 namespace Shedule
 {
     class Program
@@ -86,6 +85,8 @@ namespace Shedule
             }
 
             Console.ReadLine();
+
+            
         }
     }
 }
