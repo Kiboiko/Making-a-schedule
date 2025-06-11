@@ -1,14 +1,31 @@
-﻿using System.ComponentModel;
+﻿//using System.ComponentModel;
+
+//namespace Shedule
+//{
+//    public enum Lessons
+//    {
+//        [Description("математика")]
+//        Math,
+//        [Description("физика")]
+//        Physic,
+//        [Description("информатика")]
+//        Informatic
+//    }
+//}
+
+using System.ComponentModel;
 
 namespace Shedule
 {
     public enum Lessons
     {
         [Description("математика")]
-        Math,
+        Math = 1,  
+
         [Description("физика")]
-        Physic,
+        Physic = 2,
+
         [Description("информатика")]
-        Informatic
+        Informatic = 3
     }
 }

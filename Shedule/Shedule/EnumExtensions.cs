@@ -5,18 +5,34 @@ namespace Shedule
 {
     public static class EnumExtensions
     {
+        private static readonly Dictionary<Type, Dictionary<string, Enum>> DescriptionCache =
+            new Dictionary<Type, Dictionary<string, Enum>>();
+
         public static T ParseFromDescription<T>(this string description) where T : Enum
         {
-            foreach (var field in typeof(T).GetFields())
+            var type = typeof(T);
+
+            if (!DescriptionCache.TryGetValue(type, out var cache))
             {
-                if (Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute))
-                    is DescriptionAttribute attribute)
+                cache = new Dictionary<string, Enum>(StringComparer.OrdinalIgnoreCase);
+                foreach (var value in Enum.GetValues(type))
                 {
-                    if (attribute.Description.Equals(description, StringComparison.OrdinalIgnoreCase))
-                        return (T)field.GetValue(null);
+                    var field = type.GetField(value.ToString());
+                    if (Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute))
+                        is DescriptionAttribute attr)
+                    {
+                        cache[attr.Description] = (Enum)value;
+                    }
                 }
+                DescriptionCache[type] = cache;
             }
-            throw new ArgumentException($"{description} не найден в enum {typeof(T).Name}");
+
+            if (cache.TryGetValue(description, out var result))
+            {
+                return (T)result;
+            }
+
+            throw new ArgumentException($"{description} не найден в enum {type.Name}");
         }
     }
 }

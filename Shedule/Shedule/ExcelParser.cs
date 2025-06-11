@@ -166,79 +166,160 @@
 //}
 
 using ClosedXML.Excel;
-using Shedule;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
-public class ExcelDataLoader
+namespace Shedule
 {
-    public (List<Teacher> teachers, List<Student> students) LoadData(string filePath)
+    public class ExcelDataLoader
     {
-        var teachers = new List<Teacher>();
-        var students = new List<Student>();
-
-        using (var workbook = new XLWorkbook(filePath))
+        public (List<Teacher> teachers, List<Student> students) LoadData(string filePath)
         {
-            // Лист преподавателей (индекс 1)
-            var teacherSheet = workbook.Worksheet(1);
-            foreach (var row in teacherSheet.RowsUsed().Skip(1)) // Пропуск заголовка
+            var teachers = new List<Teacher>();
+            var students = new List<Student>();
+
+            if (!File.Exists(filePath))
             {
-                if (row.IsEmpty()) continue;
-                var teacher = ParseTeacher(row);
-                if (teacher != null) teachers.Add(teacher);
+                Console.WriteLine($"Файл не найден: {filePath}");
+                return (teachers, students);
             }
 
-            // Лист студентов (индекс 2)
-            var studentSheet = workbook.Worksheet(2);
-            foreach (var row in studentSheet.RowsUsed().Skip(1)) // Пропуск заголовка
+            try
             {
-                if (row.IsEmpty()) continue;
-                var student = ParseStudent(row);
-                if (student != null) students.Add(student);
+                using (var workbook = new XLWorkbook(filePath))
+                {
+                    // Загрузка справочника предметов
+                    var subjectMap = LoadSubjectMap(workbook);
+
+                    // Лист преподавателей
+                    var teacherSheet = workbook.Worksheet("преподы");
+                    if (teacherSheet == null) throw new Exception("Лист 'преподы' не найден");
+
+                    foreach (var row in teacherSheet.RowsUsed().Skip(1))
+                    {
+                        if (row.IsEmpty()) continue;
+                        var teacher = ParseTeacherRow(row, subjectMap);
+                        if (teacher != null) teachers.Add(teacher);
+                    }
+
+                    // Лист студентов
+                    var studentSheet = workbook.Worksheet("ученики");
+                    if (studentSheet == null) throw new Exception("Лист 'ученики' не найден");
+
+                    foreach (var row in studentSheet.RowsUsed().Skip(1))
+                    {
+                        if (row.IsEmpty()) continue;
+                        var student = ParseStudentRow(row, subjectMap);
+                        if (student != null) students.Add(student);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при загрузке данных: {ex.Message}");
+            }
+
+            return (teachers, students);
+        }
+
+        private Dictionary<string, Lessons> LoadSubjectMap(XLWorkbook workbook)
+        {
+            var map = new Dictionary<string, Lessons>();
+
+            var sheet = workbook.Worksheet("квалификации");
+            if (sheet == null) return map;
+
+            foreach (var row in sheet.RowsUsed().Skip(1))
+            {
+                var subjectName = row.Cell(1).Value.ToString().Trim();
+                if (int.TryParse(row.Cell(2).Value.ToString(), out int id))
+                {
+                    try
+                    {
+                        var lesson = subjectName.ParseFromDescription<Lessons>();
+                        map[id.ToString()] = lesson;
+                    }
+                    catch
+                    {
+                        // Игнорируем невалидные предметы
+                    }
+                }
+            }
+            return map;
+        }
+
+        private Teacher ParseTeacherRow(IXLRow row, Dictionary<string, Lessons> subjectMap)
+        {
+            try
+            {
+                // Столбцы: A-пустой, B-имя, C-предметы, D-начало, E-конец, F-приоритет
+                string name = row.Cell(2).Value.ToString().Trim();
+                string subjectsInput = row.Cell(3).Value.ToString().Trim();
+                string startTime = NormalizeTime(row.Cell(4).Value.ToString());
+                string endTime = NormalizeTime(row.Cell(5).Value.ToString());
+                int priority = int.TryParse(row.Cell(6).Value.ToString(), out int p) ? p : 1;
+
+                // Парсинг предметов с поддержкой . и , как разделителей
+                var subjectIds = subjectsInput.Split(new[] { ',', '.', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                                              .Select(id => id.Trim())
+                                              .ToList();
+
+                var lessons = new List<Lessons>();
+                foreach (var id in subjectIds)
+                {
+                    if (subjectMap.TryGetValue(id, out var lesson))
+                    {
+                        lessons.Add(lesson);
+                    }
+                }
+
+                return new Teacher(name, startTime, endTime, lessons, priority);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка парсинга преподавателя: {ex.Message}");
+                return null;
             }
         }
-        return (teachers, students);
-    }
 
-    private Teacher ParseTeacher(IXLRow row)
-    {
-        try
+        private Student ParseStudentRow(IXLRow row, Dictionary<string, Lessons> subjectMap)
         {
-            return new Teacher(
-                name: row.Cell(1).Value.ToString().Trim(),
-                startOfStudyTime: row.Cell(3).Value.ToString(),
-                endOfStudyTime: row.Cell(4).Value.ToString(),
-                _lessons: ParseSubjectIds(row.Cell(2).Value.ToString()),
-                priority: int.Parse(row.Cell(5).Value.ToString())
-            );
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Ошибка парсинга преподавателя: {ex.Message}");
-            return null;
-        }
-    }
+            try
+            {
+                // Столбцы: A-пустой, B-имя, C-предмет, D-начало, E-конец
+                string name = row.Cell(2).Value.ToString().Trim();
+                string subjectId = row.Cell(3).Value.ToString().Trim();
+                string startTime = NormalizeTime(row.Cell(4).Value.ToString());
+                string endTime = NormalizeTime(row.Cell(5).Value.ToString());
 
-    private List<Lessons> ParseSubjectIds(string input)
-    {
-        return input.Split(',')
-                   .Select(id => (Lessons)int.Parse(id.Trim()))
-                   .ToList();
-    }
+                if (!subjectMap.TryGetValue(subjectId, out var lesson))
+                {
+                    throw new ArgumentException($"Неизвестный ID предмета: {subjectId}");
+                }
 
-    private Student ParseStudent(IXLRow row)
-    {
-        try
-        {
-            return new Student(
-                name: row.Cell(1).Value.ToString().Trim(),
-                startOfStudyTime: row.Cell(3).Value.ToString(),
-                endOfStudyTime: row.Cell(4).Value.ToString(),
-                subject: (Lessons)int.Parse(row.Cell(2).Value.ToString())
-            );
+                return new Student(name, startTime, endTime, lesson);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка парсинга студента: {ex.Message}");
+                return null;
+            }
         }
-        catch (Exception ex)
+
+        private string NormalizeTime(string timeStr)
         {
-            Console.WriteLine($"Ошибка парсинга студента: {ex.Message}");
-            return null;
+            // Упрощаем "10:00:00" до "10:00"
+            if (timeStr.Length > 5 && timeStr.Contains(':'))
+            {
+                var parts = timeStr.Split(':');
+                if (parts.Length >= 2)
+                {
+                    return $"{parts[0]}:{parts[1]}";
+                }
+            }
+            return timeStr;
         }
     }
 }
