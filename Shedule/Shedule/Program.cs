@@ -119,7 +119,6 @@ namespace Shedule
             var excelLoader = new ExcelDataLoader();
             string filePath = "../../../example.xlsx"; // Укажите правильный путь к файлу
             var (teachers, students) = excelLoader.LoadData(filePath);
-/*
             // Проверка загруженных данных
             Console.WriteLine("=== Преподаватели ===");
             foreach (var teacher in teachers)
@@ -133,7 +132,7 @@ namespace Shedule
             {
                 Console.WriteLine(student.ToString());
                 Console.WriteLine("---");
-            }*/
+            }
 
             // Подбор комбинаций преподавателей
             Console.WriteLine("\n=== Результат подбора комбинаций на день ===");
