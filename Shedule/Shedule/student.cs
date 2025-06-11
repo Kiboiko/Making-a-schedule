@@ -10,12 +10,12 @@ namespace Shedule
     public class Student : Person
     {
         public int SubjectId { get;}
-        public int NeedForAttention {  get;}
-        public Student(string name, string startOfStudyTime, string endOfStudyTime,int subjectId,int _NeedForAttention) 
+        /*public int NeedForAttention { get; }*/
+        public Student(string name, string startOfStudyTime, string endOfStudyTime,int subjectId/*, int _NeedForAttention*/) 
             : base(name, startOfStudyTime, endOfStudyTime)
         {
             SubjectId = subjectId;
-            NeedForAttention = _NeedForAttention;
+            /*NeedForAttention = _NeedForAttention;*/
         }
 
         public override string ToString()

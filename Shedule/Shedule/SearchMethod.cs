@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Vml.Office;
 
 namespace Shedule
 {
@@ -89,17 +90,46 @@ namespace Shedule
 
         public static List<List<Teacher>> GetTeacherComboForTheDay(List<Student> students, List<Teacher> teachers)
         {
-            List<List<Teacher>> uniqTeachers = HelperMethods.GetAllTeacherCombinations(teachers);
+            List<List<Teacher>> uniqTeachers = HelperMethods.GetAllTeacherCombinations(teachers).OrderBy(x => x.Count).ToList();
             List<List<Teacher>> res = new List<List<Teacher>>();
-
+            
             foreach (var combo in uniqTeachers)
             {
-                if (CheckTeachersComboForTheDay(students, combo))
+                if (CheckTeachersComboForTheDay(students, combo) && CheckForEntryinterruption(res,combo))
                 {
                     res.Add(combo);
                 }
             }
-            return res.OrderBy(x => x.Count()).ThenBy(x => x.Select(y => y.Priority).Sum()).ToList();
+            return res.OrderBy(x => x.Select(y => y.Priority).Sum()).ToList();
+        }
+
+        public static bool CheckForEntryinterruption(List<List<Teacher>> res, List<Teacher> combo)
+        {
+            if (res.Count == 0)
+                return true;
+            var t = true;
+            foreach (var item in res)
+            {
+                if (FindingAnOccurrenceOfaCombination(combo, item))
+                {
+                    t = false;
+                    break;
+                }
+            }
+            return t;
+        }
+
+        public static bool FindingAnOccurrenceOfaCombination(List<Teacher> item, List<Teacher> combo)
+        {
+            int c = 0;
+            foreach (var teacher in combo)
+            {
+                if (item.Select(x=>x.Name).ToList().Contains(teacher.Name))
+                {
+                    c++;
+                }
+            }
+            return ((c == combo.Count()));
         }
 
 

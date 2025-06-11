@@ -10,12 +10,12 @@ namespace Shedule
     {
         public List<int> SubjectsId = new List<int>();
         public int Priority;
-        public int MaximumAttention { get; }
-        public Teacher(string name, string startOfStudyTime, string endOfStudyTime, List<int> _lessons,int priority,int _MaximumAttention)
+        /*public int MaximumAttention { get; }*/
+        public Teacher(string name, string startOfStudyTime, string endOfStudyTime, List<int> _lessons,int priority/*,int _MaximumAttention*/)
             :base(name,startOfStudyTime,endOfStudyTime) {
             SubjectsId = _lessons;
             Priority = priority;
-            MaximumAttention = _MaximumAttention;
+            /*MaximumAttention = _MaximumAttention;*/
         }
 
         public override string ToString()
@@ -25,5 +25,7 @@ namespace Shedule
                 $"Время начала:{StartOfStudyingTime.ToString("HH:mm")}\n" +
                 $"Время конца:{EndOfStudyingTime.ToString("HH:mm")}";
         }
+
+        
     }
 }

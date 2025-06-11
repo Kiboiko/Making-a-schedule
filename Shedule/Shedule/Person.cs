@@ -24,5 +24,9 @@ namespace Shedule
                 Console.WriteLine("Некорректный формат времени");
             }
         }
+        public bool Comparison(Person other)
+        {
+            return Name == other.Name;
+        }
     }
 }

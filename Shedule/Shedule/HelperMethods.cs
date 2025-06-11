@@ -62,6 +62,20 @@ namespace Shedule
             return true;
         }
 
+        public static bool ContainsForTeacher(List<Teacher> teachers, Teacher teacher)
+        {
+            bool t = true;
+            foreach (var people in teachers)
+            {
+                if (!people.Comparison(teacher))
+                {
+                    t = false; 
+                    break;
+                }
+            }
+            return t;
+        }
+
 
     }
 }
