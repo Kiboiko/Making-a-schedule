@@ -20,13 +20,13 @@ namespace Shedule
 
             // Сначала распределяем учеников с "редкими" предметами (где меньше учителей)
             var studentsBySubjectAvailability = students
-                .OrderBy(s => teachers.Count(t => t.Subjects.Contains(s.Subject)))
+                .OrderBy(s => teachers.Count(t => t.SubjectsId.Contains(s.SubjectId)))
                 .ToList();
 
             foreach (var student in studentsBySubjectAvailability)
             {
                 var availableTeachers = teachers
-                    .Where(t => t.Subjects.Contains(student.Subject) &&
+                    .Where(t => t.SubjectsId.Contains(student.SubjectId) &&
                                 teacherAssignments[t].Count < 4)
                     .OrderBy(t => teacherAssignments[t].Count); // Выбираем учителей с минимальной нагрузкой
 
@@ -61,13 +61,13 @@ namespace Shedule
 
             // Сначала распределяем учеников с "редкими" предметами (где меньше учителей)
             var studentsBySubjectAvailability = students
-                .OrderBy(s => teachers.Count(t => t.Subjects.Contains(s.Subject)))
+                .OrderBy(s => teachers.Count(t => t.SubjectsId.Contains(s.SubjectId)))
                 .ToList();
 
             foreach (var student in studentsBySubjectAvailability)
             {
                 var availableTeachers = teachers
-                    .Where(t => t.Subjects.Contains(student.Subject) &&
+                    .Where(t => t.SubjectsId.Contains(student.SubjectId) &&
                                 teacherAssignments[t].Count < 4)
                     .OrderBy(t => teacherAssignments[t].Count); // Выбираем учителей с минимальной нагрузкой
 

@@ -35,12 +35,12 @@ namespace Shedule
         public static bool ClosureOfNeeds(List<Teacher> teachers, Dictionary<Lessons, int> personPerLesson)
         {
             // Словарь для подсчета количества преподавателей по каждому предмету
-            Dictionary<Lessons, int> coveredLessons = new Dictionary<Lessons, int>();
+            Dictionary<int, int> coveredLessons = new Dictionary<int, int>();
 
             // Перебираем всех учителей и их предметы
             foreach (var teacher in teachers)
             {
-                foreach (var lesson in teacher.Subjects)
+                foreach (int lesson in teacher.SubjectsId)
                 {
                     if (coveredLessons.ContainsKey(lesson))
                         coveredLessons[lesson]++;
@@ -52,7 +52,7 @@ namespace Shedule
             // Проверяем, все ли предметы покрыты в нужном количестве
             foreach (var requirement in personPerLesson)
             {
-                Lessons lesson = requirement.Key;
+                int lesson = (int)requirement.Key;
                 int requiredCount = requirement.Value;
 
                 if (!coveredLessons.TryGetValue(lesson, out int actualCount) || actualCount < requiredCount)
