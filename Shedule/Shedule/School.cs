@@ -8,6 +8,45 @@ namespace Shedule
 {
     public class School
     {
+        //public static bool CheckTeacherStudentAllocation(List<Teacher> teachers, List<Student> students)
+        //{
+        //    var teacherAssignments = new Dictionary<Teacher, List<Student>>();
+        //    var unassignedStudents = new List<Student>();
+
+        //    foreach (var teacher in teachers)
+        //    {
+        //        teacherAssignments[teacher] = new List<Student>();
+        //    }
+
+        //    // Сначала распределяем учеников с "редкими" предметами (где меньше учителей)
+        //    var studentsBySubjectAvailability = students
+        //        .OrderBy(s => teachers.Count(t => t.SubjectsId.Contains(s.SubjectId)))
+        //        .ToList();
+
+        //    foreach (var student in studentsBySubjectAvailability)
+        //    {
+        //        var availableTeachers = teachers
+        //            .Where(t => t.SubjectsId.Contains(student.SubjectId) &&
+        //                        teacherAssignments[t].Count < 4)
+        //            .OrderBy(t => teacherAssignments[t].Count); // Выбираем учителей с минимальной нагрузкой
+
+        //        var assignedTeacher = availableTeachers.FirstOrDefault();
+
+        //        if (assignedTeacher != null)
+        //        {
+        //            teacherAssignments[assignedTeacher].Add(student);
+        //        }
+        //        else
+        //        {
+        //            unassignedStudents.Add(student);
+        //        }
+        //    }
+
+
+        //    return unassignedStudents.Count == 0;
+
+        //}
+
         public static bool CheckTeacherStudentAllocation(List<Teacher> teachers, List<Student> students)
         {
             var teacherAssignments = new Dictionary<Teacher, List<Student>>();
@@ -18,33 +57,37 @@ namespace Shedule
                 teacherAssignments[teacher] = new List<Student>();
             }
 
-            // Сначала распределяем учеников с "редкими" предметами (где меньше учителей)
-            var studentsBySubjectAvailability = students
-                .OrderBy(s => teachers.Count(t => t.SubjectsId.Contains(s.SubjectId)))
+            // Сначала распределяем учеников с наибольшей потребностью во внимании
+            var sortedStudents = students
+                .OrderByDescending(s => s.NeedForAttention)
                 .ToList();
 
-            foreach (var student in studentsBySubjectAvailability)
+            foreach (var student in sortedStudents)
             {
                 var availableTeachers = teachers
-                    .Where(t => t.SubjectsId.Contains(student.SubjectId) &&
-                                teacherAssignments[t].Count < 4)
-                    .OrderBy(t => teacherAssignments[t].Count); // Выбираем учителей с минимальной нагрузкой
+                    .Where(t => t.SubjectsId.Contains(student.SubjectId))
+                    .OrderBy(t => teacherAssignments[t].Sum(s => s.NeedForAttention)) // Сначала преподаватели с минимальной текущей нагрузкой
+                    .ThenBy(t => t.Priority); // Затем по приоритету
 
-                var assignedTeacher = availableTeachers.FirstOrDefault();
-
-                if (assignedTeacher != null)
+                bool isAssigned = false;
+                foreach (var teacher in availableTeachers)
                 {
-                    teacherAssignments[assignedTeacher].Add(student);
+                    int currentLoad = teacherAssignments[teacher].Sum(s => s.NeedForAttention);
+                    if (currentLoad + student.NeedForAttention <= teacher.MaximumAttention)
+                    {
+                        teacherAssignments[teacher].Add(student);
+                        isAssigned = true;
+                        break;
+                    }
                 }
-                else
+
+                if (!isAssigned)
                 {
                     unassignedStudents.Add(student);
                 }
             }
 
-
             return unassignedStudents.Count == 0;
-            
         }
 
         public static List<Teacher> WorkingTeachers (List<Teacher> teachers, List<Student> students)

@@ -1,171 +1,4 @@
-﻿//using ClosedXML.Excel;
-//using System;
-//using System.Collections.Generic;
-//using System.ComponentModel;
-//using System.IO;
-
-//namespace Shedule
-//{
-//    public class ExcelDataLoader
-//    {
-//        public (List<Teacher> teachers, List<Student> students) LoadData(string filePath)
-//        {
-//            var teachers = new List<Teacher>();
-//            var students = new List<Student>();
-
-//            if (!File.Exists(filePath))
-//            {
-//                Console.WriteLine($"Файл не найден: {filePath}");
-//                return (teachers, students);
-//            }
-
-//            //    try
-//            //    {
-//            //        using (var workbook = new XLWorkbook(filePath))
-//            //        {
-//            //            var worksheet = workbook.Worksheet(2);
-
-//            //            foreach (var row in worksheet.RowsUsed())
-//            //            {
-//            //                if (row.RowNumber() == 1) continue; // Пропуск заголовка
-
-//            //                var typeCell = row.Cell(1).Value.ToString().Trim().ToLower();
-//            //                if (string.IsNullOrEmpty(typeCell)) typeCell = "ученик";
-
-//            //                if (typeCell == "препод")
-//            //                {
-//            //                    var teacher = ParseTeacher(row);
-//            //                    if (teacher != null) teachers.Add(teacher);
-//            //                }
-//            //                else
-//            //                {
-//            //                    var student = ParseStudent(row);
-//            //                    if (student != null) students.Add(student);
-//            //                }
-//            //            }
-//            //        }
-//            //    }
-//            //    catch (Exception ex)
-//            //    {
-//            //        Console.WriteLine($"Ошибка: {ex.Message}");
-//            //    }
-
-//            //    return (teachers, students);
-//            //}
-//            // ПРОБНОЕ ИЗМЕНЕНИЕ ПАРСИНГА 
-//            try
-//            {
-//                using (var workbook = new XLWorkbook(filePath))
-//                {
-//                    var worksheetprep = workbook.Worksheet(1);
-//                    var worksheetstud = workbook.Worksheet(2);
-//                    var worksheetkval = workbook.Worksheet(3);
-
-//                    foreach (var row in worksheetprep.RowsUsed())
-//                    {
-//                        if (row.RowNumber() == 1) continue; // Пропуск заголовка
-
-//                        var typeCell = row.Cell(1).Value.ToString().Trim().ToLower();
-//                        //if (string.IsNullOrEmpty(typeCell)) typeCell = "ученик";
-
-//                        if (typeCell == "препод")
-//                        {
-//                            var teacher = ParseTeacher(row);
-//                            if (teacher != null) teachers.Add(teacher);
-//                        }
-//                        //else
-//                        //{
-//                        //    var student = ParseStudent(row);
-//                        //    if (student != null) students.Add(student);
-//                        //}
-//                    }
-
-//                    foreach (var row in worksheetstud.RowsUsed())
-//                    {
-//                        if (row.RowNumber() == 1) continue;
-//                        var typeCell = row.Cell(1).Value.ToString().Trim().ToLower();
-//                        if (typeCell == "ученик")
-//                        {
-//                            var student = ParseStudent(row);
-//                            if (student != null) student.Add(student);
-//                        }
-//                    }
-//                }
-//            }
-//            catch (Exception ex)
-//            {
-//                Console.WriteLine($"Ошибка: {ex.Message}");
-//            }
-
-//            return (teachers, students);
-//        }
-//        //ПРОБНОЕ ИЗМЕНЕНИЕ ПАРСИНГА
-
-//        private Teacher ParseTeacher(IXLRow row)
-//        {
-//            try
-//            {
-//                // Проверка приоритета
-//                if (!int.TryParse(row.Cell(6).Value.ToString(), out int priority))
-//                {
-//                    Console.WriteLine($"Ошибка: неверный приоритет в строке {row.RowNumber()}");
-//                    return null;
-//                }
-
-//                return new Teacher(
-//                    name: row.Cell(2).Value.ToString().Trim(),
-//                    startOfStudyTime: row.Cell(4).Value.ToString(),
-//                    endOfStudyTime: row.Cell(5).Value.ToString(),
-//                    _lessons: ParseSubjects(row.Cell(3).Value.ToString()),
-//                    priority: priority
-//                );
-//            }
-//            catch (Exception ex)
-//            {
-//                Console.WriteLine($"Ошибка парсинга преподавателя: {ex.Message}");
-//                return null;
-//            }
-//        }
-
-//        private List<Lessons> ParseSubjects(string input)
-//        {
-//            var subjects = new List<Lessons>();
-//            foreach (var subject in input.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries))
-//            {
-//                try
-//                {
-//                    var trimmedSubject = subject.Trim();
-//                    subjects.Add(trimmedSubject.ParseFromDescription<Lessons>());
-//                }
-//                catch (Exception ex)
-//                {
-//                    Console.WriteLine($"Ошибка парсинга предмета '{subject}': {ex.Message}");
-//                }
-//            }
-//            return subjects;
-//        }
-
-//        private Student ParseStudent(IXLRow row)
-//        {
-//            try
-//            {
-//                return new Student(
-//                    name: row.Cell(2).Value.ToString().Trim(),
-//                    startOfStudyTime: row.Cell(4).Value.ToString(),
-//                    endOfStudyTime: row.Cell(5).Value.ToString(),
-//                    subject: row.Cell(3).Value.ToString().ParseFromDescription<Lessons>()
-//                );
-//            }
-//            catch (Exception ex)
-//            {
-//                Console.WriteLine($"Ошибка парсинга студента: {ex.Message}");
-//                return null;
-//            }
-//        }
-//    }
-//}
-
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -190,7 +23,7 @@ namespace Shedule
             {
                 using (var workbook = new XLWorkbook(filePath))
                 {
-                    // Загрузка справочника предметов (ID -> int)
+                    // Загрузка справочника предметов
                     var subjectMap = LoadSubjectMap(workbook);
 
                     // Лист преподавателей
@@ -224,11 +57,9 @@ namespace Shedule
             return (teachers, students);
         }
 
-        // Загружает справочник предметов: название -> ID (int)
         private Dictionary<string, int> LoadSubjectMap(XLWorkbook workbook)
         {
             var map = new Dictionary<string, int>();
-
             var sheet = workbook.Worksheet("квалификации");
             if (sheet == null) return map;
 
@@ -247,22 +78,35 @@ namespace Shedule
         {
             try
             {
-                // Столбцы: A-пустой, B-имя, C-предметы, D-начало, E-конец, F-приоритет
+                // Основные данные
                 string name = row.Cell(2).Value.ToString().Trim();
                 string subjectsInput = row.Cell(3).Value.ToString().Trim();
-                string startTime = NormalizeTime(row.Cell(4).Value.ToString());
-                string endTime = NormalizeTime(row.Cell(5).Value.ToString());
+                string startTimeStr = row.Cell(4).Value.ToString();
+                string endTimeStr = row.Cell(5).Value.ToString();
                 int priority = int.TryParse(row.Cell(6).Value.ToString(), out int p) ? p : 1;
 
-                // Парсим ID предметов как числа (разделители: , . ;)
+                // Расчет MaximumAttention на основе рабочего времени
+                TimeSpan startTime = TimeSpan.Parse(startTimeStr);
+                TimeSpan endTime = TimeSpan.Parse(endTimeStr);
+                TimeSpan workingTime = endTime - startTime;
+                int maximumAttention = (int)workingTime.TotalMinutes;
+
+                // Парсинг ID предметов
                 var subjectIds = subjectsInput
                     .Split(new[] { ',', '.', ';' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(id => id.Trim())
-                    .Where(id => subjectMap.ContainsValue(int.Parse(id))) // Проверяем существование ID
+                    .Where(id => subjectMap.ContainsValue(int.Parse(id)))
                     .Select(id => int.Parse(id))
                     .ToList();
 
-                return new Teacher(name, startTime, endTime, subjectIds, priority);
+                return new Teacher(
+                    name: name,
+                    startOfStudyTime: NormalizeTime(startTimeStr),
+                    endOfStudyTime: NormalizeTime(endTimeStr),
+                    _lessons: subjectIds,
+                    priority: priority,
+                    _MaximumAttention: maximumAttention
+                );
             }
             catch (Exception ex)
             {
@@ -275,18 +119,30 @@ namespace Shedule
         {
             try
             {
-                // Столбцы: A-пустой, B-имя, C-предмет, D-начало, E-конец
+                // Основные данные
                 string name = row.Cell(2).Value.ToString().Trim();
                 string subjectId = row.Cell(3).Value.ToString().Trim();
-                string startTime = NormalizeTime(row.Cell(4).Value.ToString());
-                string endTime = NormalizeTime(row.Cell(5).Value.ToString());
+                string startTimeStr = row.Cell(4).Value.ToString();
+                string endTimeStr = row.Cell(5).Value.ToString();
+
+                // Потребность во внимании (обязательное поле)
+                if (!int.TryParse(row.Cell(6).Value.ToString(), out int needForAttention))
+                {
+                    throw new ArgumentException($"Не указана потребность во внимании для студента {name}");
+                }
 
                 if (!int.TryParse(subjectId, out int subjectIdInt))
                 {
                     throw new ArgumentException($"Неверный ID предмета: {subjectId}");
                 }
 
-                return new Student(name, startTime, endTime, subjectIdInt);
+                return new Student(
+                    name: name,
+                    startOfStudyTime: NormalizeTime(startTimeStr),
+                    endOfStudyTime: NormalizeTime(endTimeStr),
+                    subjectId: subjectIdInt,
+                    _NeedForAttention: needForAttention
+                );
             }
             catch (Exception ex)
             {
@@ -297,7 +153,6 @@ namespace Shedule
 
         private string NormalizeTime(string timeStr)
         {
-            // Упрощаем "10:00:00" до "10:00"
             if (timeStr.Length > 5 && timeStr.Contains(':'))
             {
                 var parts = timeStr.Split(':');
