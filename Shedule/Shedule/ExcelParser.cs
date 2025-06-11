@@ -190,7 +190,7 @@ namespace Shedule
             {
                 using (var workbook = new XLWorkbook(filePath))
                 {
-                    // Загрузка справочника предметов
+                    // Загрузка справочника предметов (ID -> int)
                     var subjectMap = LoadSubjectMap(workbook);
 
                     // Лист преподавателей
@@ -224,9 +224,10 @@ namespace Shedule
             return (teachers, students);
         }
 
-        private Dictionary<string, Lessons> LoadSubjectMap(XLWorkbook workbook)
+        // Загружает справочник предметов: название -> ID (int)
+        private Dictionary<string, int> LoadSubjectMap(XLWorkbook workbook)
         {
-            var map = new Dictionary<string, Lessons>();
+            var map = new Dictionary<string, int>();
 
             var sheet = workbook.Worksheet("квалификации");
             if (sheet == null) return map;
@@ -236,21 +237,13 @@ namespace Shedule
                 var subjectName = row.Cell(1).Value.ToString().Trim();
                 if (int.TryParse(row.Cell(2).Value.ToString(), out int id))
                 {
-                    try
-                    {
-                        var lesson = subjectName.ParseFromDescription<Lessons>();
-                        map[id.ToString()] = lesson;
-                    }
-                    catch
-                    {
-                        // Игнорируем невалидные предметы
-                    }
+                    map[subjectName] = id;
                 }
             }
             return map;
         }
 
-        private Teacher ParseTeacherRow(IXLRow row, Dictionary<string, Lessons> subjectMap)
+        private Teacher ParseTeacherRow(IXLRow row, Dictionary<string, int> subjectMap)
         {
             try
             {
@@ -261,30 +254,24 @@ namespace Shedule
                 string endTime = NormalizeTime(row.Cell(5).Value.ToString());
                 int priority = int.TryParse(row.Cell(6).Value.ToString(), out int p) ? p : 1;
 
-                // Парсинг предметов с поддержкой . и , как разделителей
-                var subjectIds = subjectsInput.Split(new[] { ',', '.', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                                              .Select(id => id.Trim())
-                                              .ToList();
+                // Парсим ID предметов как числа (разделители: , . ;)
+                var subjectIds = subjectsInput
+                    .Split(new[] { ',', '.', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(id => id.Trim())
+                    .Where(id => subjectMap.ContainsValue(int.Parse(id))) // Проверяем существование ID
+                    .Select(id => int.Parse(id))
+                    .ToList();
 
-                var lessons = new List<Lessons>();
-                foreach (var id in subjectIds)
-                {
-                    if (subjectMap.TryGetValue(id, out var lesson))
-                    {
-                        lessons.Add(lesson);
-                    }
-                }
-
-                return new Teacher(name, startTime, endTime, lessons, priority);
+                return new Teacher(name, startTime, endTime, subjectIds, priority);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка парсинга преподавателя: {ex.Message}");
+                Console.WriteLine($"Ошибка парсинга преподавателя (строка {row.RowNumber()}): {ex.Message}");
                 return null;
             }
         }
 
-        private Student ParseStudentRow(IXLRow row, Dictionary<string, Lessons> subjectMap)
+        private Student ParseStudentRow(IXLRow row, Dictionary<string, int> subjectMap)
         {
             try
             {
@@ -294,16 +281,16 @@ namespace Shedule
                 string startTime = NormalizeTime(row.Cell(4).Value.ToString());
                 string endTime = NormalizeTime(row.Cell(5).Value.ToString());
 
-                if (!subjectMap.TryGetValue(subjectId, out var lesson))
+                if (!int.TryParse(subjectId, out int subjectIdInt))
                 {
-                    throw new ArgumentException($"Неизвестный ID предмета: {subjectId}");
+                    throw new ArgumentException($"Неверный ID предмета: {subjectId}");
                 }
 
-                return new Student(name, startTime, endTime, lesson);
+                return new Student(name, startTime, endTime, subjectIdInt);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка парсинга студента: {ex.Message}");
+                Console.WriteLine($"Ошибка парсинга студента (строка {row.RowNumber()}): {ex.Message}");
                 return null;
             }
         }
