@@ -8,20 +8,20 @@ namespace Shedule
 {
     public class Teacher:Person
     {
-        public List<Lessons> Subjects = new List<Lessons>();
+        public List<int> SubjectsId = new List<int>();
         public int Priority;
         private int _countStudents;
         public int CountStudents => _countStudents;
-        public Teacher(string name, string startOfStudyTime, string endOfStudyTime, List<Lessons> _lessons,int priority)
-            :base(name,startOfStudyTime,endOfStudyTime) { 
-            Subjects = _lessons;
+        public Teacher(string name, string startOfStudyTime, string endOfStudyTime, List<int> _lessons,int priority)
+            :base(name,startOfStudyTime,endOfStudyTime) {
+            SubjectsId = _lessons;
             Priority = priority;
         }
 
         public override string ToString()
         {
             return $"Имя: {Name}\nКласс: Преподаватель\n" +
-                $"Предметы: {string.Join(',', Subjects)}\nПриоритет: {Priority}\n" +
+                $"Предметы: {string.Join(',', SubjectsId)}\nПриоритет: {Priority}\n" +
                 $"Время начала:{StartOfStudyingTime.ToString("HH:mm")}\n" +
                 $"Время конца:{EndOfStudyingTime.ToString("HH:mm")}";
         }

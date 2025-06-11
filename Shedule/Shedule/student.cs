@@ -9,18 +9,18 @@ namespace Shedule
 {
     public class Student : Person
     {
-        public Lessons Subject { get;}
+        public int SubjectId { get;}
 
-        public Student(string name, string startOfStudyTime, string endOfStudyTime,Lessons subject) 
+        public Student(string name, string startOfStudyTime, string endOfStudyTime,int subjectId) 
             : base(name, startOfStudyTime, endOfStudyTime)
         {
-            Subject = subject;
+            SubjectId = subjectId;
         }
 
         public override string ToString()
         {
             return $"Класс: Ученик\nИмя: {Name} \nВремя начала:{StartOfStudyingTime.ToString("HH:mm")}\n" +
-                $"Время конца:{EndOfStudyingTime.ToString("HH:mm")} \nПредмет:{Subject}";
+                $"Время конца:{EndOfStudyingTime.ToString("HH:mm")} \nПредмет:{SubjectId}";
         }
     }
 }
