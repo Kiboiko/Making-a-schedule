@@ -10,8 +10,6 @@ namespace Shedule
     {
         public List<int> SubjectsId = new List<int>();
         public int Priority;
-        private int _countStudents;
-        public int CountStudents => _countStudents;
         public Teacher(string name, string startOfStudyTime, string endOfStudyTime, List<int> _lessons,int priority)
             :base(name,startOfStudyTime,endOfStudyTime) {
             SubjectsId = _lessons;
