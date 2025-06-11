@@ -99,8 +99,7 @@ namespace Shedule
                     res.Add(combo);
                 }
             }
-            //return res.OrderByDescending(x => x.Select(y => y.Priority).Sum()).ToList();
-            return res.OrderBy(x => x.Count()).ThenByDescending(x => x.Select(y => y.Priority).Sum()).ToList();
+            return res.OrderBy(x => x.Count()).ThenBy(x => x.Select(y => y.Priority).Sum()).ToList();
         }
 
 
@@ -111,8 +110,6 @@ namespace Shedule
             for (int i = 0; i < 660; i++)
             {
                 currentTime = currentTime.AddMinutes(1);
-                /*Console.WriteLine($"{currentTime.ToString()},{String.Join(' ',
-                    School.WorkingTeachers(teachers, students).Select(x=>x.Name))}");*/
                 Console.WriteLine($"{currentTime.ToString()},{String.Join(' ',
                     mainMethod.GetMinTeachers(teachers, students)[0].Select(x => x.Name))}");
             }
