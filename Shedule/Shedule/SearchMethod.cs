@@ -132,16 +132,140 @@ namespace Shedule
             return ((c == combo.Count()));
         }
 
-
-        public static void ShowWorkingTimeTeachers(List<Teacher> teachers, List<Student> students)
+        /*public static string[][] combinationsForSlots(List<Teacher> teachers, List<List<Teacher>> combos, List<Student> students)
         {
-            TimeOnly startStudTime = students.Select(x => x.StartOfStudyingTime).ToList().Min();
-            TimeOnly currentTime = TimeOnly.FromTimeSpan(TimeSpan.FromHours(9));
-            for (int i = 0; i < 660; i++)
+            string[][] res = new string[45][];
+            for (int i = 0; i < teachers.Count; i++)
             {
-                currentTime = currentTime.AddMinutes(1);
-                Console.WriteLine($"{currentTime.ToString()},{String.Join(' ',
-                    mainMethod.GetMinTeachers(teachers, students)[0].Select(x => x.Name))}");
+                res[0][i] = teachers[i].Name.ToString();
+            }
+            for (int i = 0;i < teachers.Count; i++)
+            {
+                for (int j = 0;j < 45; j++)
+                {
+                    for (int k = 0;k < combos.Count; k++)
+                    {
+                        if (CheckTeachersComboPerMinute(combos[k],students)
+                    }
+                    
+                }
+            }
+            return res;
+        }*/
+
+            public static object[,] GenerateTeacherScheduleMatrix(List<Student> students, List<Teacher> teachers, List<List<Teacher>> teacherCombinations)
+            {
+                TimeOnly startTime = new TimeOnly(9, 0);
+                TimeOnly endTime = new TimeOnly(20, 0);
+                int totalMinutes = (int)(endTime - startTime).TotalMinutes;
+                int timeSlots = (int)Math.Ceiling(totalMinutes / 15.0);
+
+                object[,] matrix = new object[teachers.Count + 1, timeSlots + 1];
+
+                matrix[0, 0] = "Teachers/Time";
+                for (int i = 1; i <= timeSlots; i++)
+                {
+                    TimeOnly slotStart = startTime.AddMinutes((i - 1) * 15);
+                    TimeOnly slotEnd = slotStart.AddMinutes(15);
+                    matrix[0, i] = $"{slotStart:HH:mm}-{slotEnd:HH:mm}";
+                }
+
+                for (int i = 0; i < teachers.Count; i++)
+                {
+                    matrix[i + 1, 0] = teachers[i].Name;
+                }
+
+                for (int slot = 1; slot <= timeSlots; slot++)
+                {
+                    TimeOnly slotTime = startTime.AddMinutes((slot - 1) * 15);
+                    List<Student> activeStudents = GetActiveStudentsAtMinute(students, slotTime);
+
+                    // Find which combinations are valid for this time slot
+                    List<int> activeCombinationIndices = new List<int>();
+                    for (int i = 0; i < teacherCombinations.Count; i++)
+                    {
+                        if (School.CheckTeacherStudentAllocation(
+                            GetActiveTeachersAtMinute(teacherCombinations[i], slotTime),
+                            activeStudents))
+                        {
+                            activeCombinationIndices.Add(i + 1);
+                        }
+                    }
+
+                    for (int teacherRow = 1; teacherRow <= teachers.Count; teacherRow++)
+                    {
+                    Teacher teacher = teachers[teacherRow - 1];
+
+                    // Проверяем, работает ли преподаватель в этот тайм-слот
+                    bool isTeacherActive = (slotTime >= teacher.StartOfStudyingTime) &&
+                                         (slotTime <= teacher.EndOfStudyingTime);
+
+                    if (!isTeacherActive)
+                    {
+                        matrix[teacherRow, slot] = "0";
+                        continue;
+                    }
+
+                    // Если преподаватель активен, проверяем комбинации
+                    var relevantCombos = activeCombinationIndices
+                        .Where(comboIndex => teacherCombinations[comboIndex - 1].Any(t => t.Name == teacher.Name))
+                        .ToList();
+
+                    matrix[teacherRow, slot] = relevantCombos.Count > 0
+                        ? string.Join(",", relevantCombos)
+                        : "0";
+                }
+                }
+
+                return matrix;
+            }
+
+        public static void PrintTeacherScheduleMatrix(object[,] matrix, List<List<Teacher>> teacherCombinations)
+        {
+            int rows = matrix.GetLength(0);
+            int cols = matrix.GetLength(1);
+
+            // Определяем максимальную ширину для каждого столбца
+            int[] columnWidths = new int[cols];
+            for (int col = 0; col < cols; col++)
+            {
+                for (int row = 0; row < rows; row++)
+                {
+                    int length = matrix[row, col]?.ToString()?.Length ?? 0;
+                    if (length > columnWidths[col])
+                    {
+                        columnWidths[col] = length;
+                    }
+                }
+                // Минимальная ширина для столбца - 3 символа
+                columnWidths[col] = Math.Max(columnWidths[col], 3);
+            }
+
+            Console.WriteLine("РАСПИСАНИЕ ПРЕПОДАВАТЕЛЕЙ ПО ТАЙМ-СЛОТАМ");
+
+            for (int col = 0; col < cols; col++)
+            {
+                string format = $"| {{0,-{columnWidths[col]}}} ";
+                Console.Write(format, matrix[0, col]);
+            }
+            Console.WriteLine("|");
+
+
+            for (int row = 1; row < rows; row++)
+            {
+                for (int col = 0; col < cols; col++)
+                {
+                    string format = $"| {{0,-{columnWidths[col]}}} ";
+                    Console.Write(format, matrix[row, col]);
+                }
+                Console.WriteLine("|");
+            }
+
+            Console.WriteLine("\nСПИСОК КОМБИНАЦИЙ ПРЕПОДАВАТЕЛЕЙ:");
+            for (int i = 0; i < teacherCombinations.Count; i++)
+            {
+                string comboTeachers = string.Join(", ", teacherCombinations[i].Select(t => t.Name));
+                Console.WriteLine($"[{i + 1}] {comboTeachers}");
             }
         }
 

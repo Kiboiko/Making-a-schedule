@@ -144,10 +144,13 @@ namespace Shedule
             }
             else
             {
-                foreach (var combo in teacherCombinations)
+                /*foreach (var combo in teacherCombinations)
                 {
                     Console.WriteLine(string.Join(' ', combo.Select(x => x.Name)));
-                }
+                }*/
+
+                var scheduleMatrix = mainMethod.GenerateTeacherScheduleMatrix(students, teachers, teacherCombinations);
+                mainMethod.PrintTeacherScheduleMatrix(scheduleMatrix,teacherCombinations);
             }
 
         }
