@@ -132,73 +132,83 @@ namespace Shedule
             return ((c == combo.Count()));
         }
 
-        /*public static string[][] combinationsForSlots(List<Teacher> teachers, List<List<Teacher>> combos, List<Student> students)
+
+        public static object[,] GenerateTeacherScheduleMatrix(List<Student> students, List<Teacher> teachers, List<List<Teacher>> teacherCombinations)
         {
-            string[][] res = new string[45][];
+            TimeOnly startTime = new TimeOnly(9, 0);
+            TimeOnly endTime = new TimeOnly(20, 0);
+            int totalMinutes = (int)(endTime - startTime).TotalMinutes;
+            int timeSlots = (int)Math.Ceiling(totalMinutes / 15.0);
+
+            object[,] matrix = new object[teachers.Count + 1, timeSlots + 1];
+
+            // Заполняем заголовки
+            matrix[0, 0] = "Teachers/Time";
+            for (int i = 1; i <= timeSlots; i++)
+            {
+                TimeOnly slotStart = startTime.AddMinutes((i - 1) * 15);
+                TimeOnly slotEnd = slotStart.AddMinutes(15);
+                matrix[0, i] = $"{slotStart:HH:mm}-{slotEnd:HH:mm}";
+            }
+
+            // Заполняем имена преподавателей
             for (int i = 0; i < teachers.Count; i++)
             {
-                res[0][i] = teachers[i].Name.ToString();
+                matrix[i + 1, 0] = teachers[i].Name;
             }
-            for (int i = 0;i < teachers.Count; i++)
+
+            // Обрабатываем каждый тайм-слот
+            for (int slot = 1; slot <= timeSlots; slot++)
             {
-                for (int j = 0;j < 45; j++)
+                TimeOnly slotStart = startTime.AddMinutes((slot - 1) * 15);
+                TimeOnly slotEnd = slotStart.AddMinutes(15);
+
+                // Получаем активных студентов в этом тайм-слоте
+                List<Student> activeStudents = students
+                    .Where(s => s.StartOfStudyingTime < slotEnd &&
+                               s.EndOfStudyingTime >= slotStart)
+                    .ToList();
+
+                // Если нет активных студентов - все преподаватели "0"
+                if (activeStudents.Count == 0)
                 {
-                    for (int k = 0;k < combos.Count; k++)
-                    {
-                        if (CheckTeachersComboPerMinute(combos[k],students)
-                    }
-                    
-                }
-            }
-            return res;
-        }*/
-
-            public static object[,] GenerateTeacherScheduleMatrix(List<Student> students, List<Teacher> teachers, List<List<Teacher>> teacherCombinations)
-            {
-                TimeOnly startTime = new TimeOnly(9, 0);
-                TimeOnly endTime = new TimeOnly(20, 0);
-                int totalMinutes = (int)(endTime - startTime).TotalMinutes;
-                int timeSlots = (int)Math.Ceiling(totalMinutes / 15.0);
-
-                object[,] matrix = new object[teachers.Count + 1, timeSlots + 1];
-
-                matrix[0, 0] = "Teachers/Time";
-                for (int i = 1; i <= timeSlots; i++)
-                {
-                    TimeOnly slotStart = startTime.AddMinutes((i - 1) * 15);
-                    TimeOnly slotEnd = slotStart.AddMinutes(15);
-                    matrix[0, i] = $"{slotStart:HH:mm}-{slotEnd:HH:mm}";
-                }
-
-                for (int i = 0; i < teachers.Count; i++)
-                {
-                    matrix[i + 1, 0] = teachers[i].Name;
-                }
-
-                for (int slot = 1; slot <= timeSlots; slot++)
-                {
-                    TimeOnly slotTime = startTime.AddMinutes((slot - 1) * 15);
-                    List<Student> activeStudents = GetActiveStudentsAtMinute(students, slotTime);
-
-                    // Find which combinations are valid for this time slot
-                    List<int> activeCombinationIndices = new List<int>();
-                    for (int i = 0; i < teacherCombinations.Count; i++)
-                    {
-                        if (School.CheckTeacherStudentAllocation(
-                            GetActiveTeachersAtMinute(teacherCombinations[i], slotTime),
-                            activeStudents))
-                        {
-                            activeCombinationIndices.Add(i + 1);
-                        }
-                    }
-
                     for (int teacherRow = 1; teacherRow <= teachers.Count; teacherRow++)
                     {
+                        matrix[teacherRow, slot] = "0";
+                    }
+                    continue;
+                }
+
+                // Получаем список предметов, которые нужны в этот тайм-слот
+                var requiredSubjects = activeStudents
+                    .Select(s => s.SubjectId)
+                    .Distinct()
+                    .ToList();
+
+                // Находим активные комбинации для этого тайм-слота
+                List<int> activeCombinationIndices = new List<int>();
+                for (int i = 0; i < teacherCombinations.Count; i++)
+                {
+                    var activeTeachersInCombo = teacherCombinations[i]
+                        .Where(t => t.StartOfStudyingTime <= slotStart &&
+                                   t.EndOfStudyingTime >= slotEnd)
+                        .ToList();
+
+                    if (activeTeachersInCombo.Count > 0 &&
+                        School.CheckTeacherStudentAllocation(activeTeachersInCombo, activeStudents))
+                    {
+                        activeCombinationIndices.Add(i + 1);
+                    }
+                }
+
+                // Заполняем данные для каждого преподавателя
+                for (int teacherRow = 1; teacherRow <= teachers.Count; teacherRow++)
+                {
                     Teacher teacher = teachers[teacherRow - 1];
 
-                    // Проверяем, работает ли преподаватель в этот тайм-слот
-                    bool isTeacherActive = (slotTime >= teacher.StartOfStudyingTime) &&
-                                         (slotTime <= teacher.EndOfStudyingTime);
+                    // 1. Проверяем, работает ли преподаватель в этот тайм-слот (строгая проверка)
+                    bool isTeacherActive = teacher.StartOfStudyingTime <= slotStart &&
+                                         teacher.EndOfStudyingTime >= slotEnd;
 
                     if (!isTeacherActive)
                     {
@@ -206,19 +216,30 @@ namespace Shedule
                         continue;
                     }
 
-                    // Если преподаватель активен, проверяем комбинации
+                    // 2. Проверяем, есть ли студенты, которым нужен этот преподаватель
+                    bool isTeacherNeeded = teacher.SubjectsId
+                        .Any(subjectId => requiredSubjects.Contains(subjectId));
+
+                    if (!isTeacherNeeded)
+                    {
+                        matrix[teacherRow, slot] = "0";
+                        continue;
+                    }
+
+                    // 3. Если преподаватель активен и нужен, проверяем комбинации
                     var relevantCombos = activeCombinationIndices
-                        .Where(comboIndex => teacherCombinations[comboIndex - 1].Any(t => t.Name == teacher.Name))
+                        .Where(comboIndex => teacherCombinations[comboIndex - 1]
+                            .Any(t => t.Name == teacher.Name))
                         .ToList();
 
                     matrix[teacherRow, slot] = relevantCombos.Count > 0
                         ? string.Join(",", relevantCombos)
                         : "0";
                 }
-                }
-
-                return matrix;
             }
+
+            return matrix;
+        }
 
         public static void PrintTeacherScheduleMatrix(object[,] matrix, List<List<Teacher>> teacherCombinations)
         {

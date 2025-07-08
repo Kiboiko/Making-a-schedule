@@ -138,19 +138,13 @@ namespace Shedule
             Console.WriteLine("\n=== Результат подбора комбинаций на день ===");
             var teacherCombinations = mainMethod.GetTeacherComboForTheDay(students, teachers);
             Console.WriteLine("----------------------------------");
-            if (teacherCombinations.Count == 0)
+            if (teacherCombinations.Count > 0)
             {
-                Console.WriteLine("Нет подходящих комбинаций преподавателей!");
-            }
-            else
-            {
-                /*foreach (var combo in teacherCombinations)
-                {
-                    Console.WriteLine(string.Join(' ', combo.Select(x => x.Name)));
-                }*/
-
                 var scheduleMatrix = mainMethod.GenerateTeacherScheduleMatrix(students, teachers, teacherCombinations);
-                mainMethod.PrintTeacherScheduleMatrix(scheduleMatrix,teacherCombinations);
+                mainMethod.PrintTeacherScheduleMatrix(scheduleMatrix, teacherCombinations);
+
+                // Экспорт в исходный файл
+                ExcelDataLoader.ExportScheduleToExcel(scheduleMatrix, teacherCombinations, filePath);
             }
 
         }
