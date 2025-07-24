@@ -106,8 +106,7 @@
 //    }
 //}
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 
 namespace Shedule
 {
@@ -115,38 +114,55 @@ namespace Shedule
     {
         static void Main()
         {
-            // Загрузка данных из Excel
-            var excelLoader = new ExcelDataLoader();
-            string filePath = "../../../example.xlsx"; // Укажите правильный путь к файлу
-            var (teachers, students) = excelLoader.LoadData(filePath);
-            // Проверка загруженных данных
-            Console.WriteLine("=== Преподаватели ===");
-            foreach (var teacher in teachers)
+            try
             {
-                Console.WriteLine(teacher.ToString());
-                Console.WriteLine("---");
-            }
+                string projectDir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
+                string credentialsPath = Path.Combine(projectDir, "credentials.json");
 
-            Console.WriteLine("\n=== Студенты ===");
-            foreach (var student in students)
+                if (!File.Exists(credentialsPath))
+                {
+                    Console.WriteLine($"Поместите файл 'credentials.json' в:\n{projectDir}");
+                    Console.ReadKey();
+                    return;
+                }
+
+                string spreadsheetId = "1_atz0H3GEjjGE6nSRuzgZklAqqZOSe2Vu-w26N7bRoc";
+                var loader = new GoogleSheetsDataLoader(credentialsPath, spreadsheetId);
+
+                // Загрузка данных
+                var (teachers, students) = loader.LoadData();
+                Console.WriteLine($"Загружено: {teachers.Count} преподавателей, {students.Count} студентов");
+
+                // Генерация расписания
+                var combinations = mainMethod.GetTeacherComboForTheDay(students, teachers);
+                if (combinations.Count == 0)
+                {
+                    Console.WriteLine("Нет подходящих комбинаций!");
+                    return;
+                }
+
+                // Экспорт с обработкой ошибок диапазона
+                try
+                {
+                    var scheduleMatrix = mainMethod.GenerateTeacherScheduleMatrix(students, teachers, combinations);
+                    loader.ExportScheduleToGoogleSheets(scheduleMatrix, combinations);
+                    Console.WriteLine("Данные успешно экспортированы!");
+                }
+                catch (Google.GoogleApiException ex) when (ex.Message.Contains("does not match value's range"))
+                {
+                    Console.WriteLine("Ошибка формата данных при экспорте. Проверьте размерность матрицы расписания.");
+                    Console.WriteLine($"Техническая информация: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine(student.ToString());
-                Console.WriteLine("---");
+                Console.WriteLine($"Ошибка: {ex.Message}");
             }
-
-            // Подбор комбинаций преподавателей
-            Console.WriteLine("\n=== Результат подбора комбинаций на день ===");
-            var teacherCombinations = mainMethod.GetTeacherComboForTheDay(students, teachers);
-            Console.WriteLine("----------------------------------");
-            if (teacherCombinations.Count > 0)
+            finally
             {
-                var scheduleMatrix = mainMethod.GenerateTeacherScheduleMatrix(students, teachers, teacherCombinations);
-                mainMethod.PrintTeacherScheduleMatrix(scheduleMatrix, teacherCombinations);
-
-                // Экспорт в исходный файл
-                ExcelDataLoader.ExportScheduleToExcel(scheduleMatrix, teacherCombinations, filePath);
+                Console.WriteLine("\nНажмите любую клавишу...");
+                Console.ReadKey();
             }
-
         }
     }
 }
