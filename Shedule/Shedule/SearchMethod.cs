@@ -201,6 +201,8 @@ namespace Shedule
                         validCombinations.Add(combo);
                     }
                 }
+                validCombinations = (List<List<Teacher>>)validCombinations.OrderByDescending(x => x.Select(y => y.Priority).Sum());
+
 
                 // 5. Записываем номера комбинаций для преподавателей
                 for (int t = 0; t < teachers.Count; t++)
