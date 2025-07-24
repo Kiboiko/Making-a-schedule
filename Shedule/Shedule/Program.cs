@@ -140,7 +140,7 @@ namespace Shedule
             Console.WriteLine("----------------------------------");
             if (teacherCombinations.Count > 0)
             {
-                var scheduleMatrix = mainMethod.GenerateTeacherScheduleMatrix(students, teachers, teacherCombinations);
+                var scheduleMatrix = mainMethod.GenerateTeacherScheduleMatrix(students, teachers);
                 mainMethod.PrintTeacherScheduleMatrix(scheduleMatrix, teacherCombinations);
 
                 // Экспорт в исходный файл
