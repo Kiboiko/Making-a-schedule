@@ -92,16 +92,39 @@ namespace Shedule
         {
             List<List<Teacher>> uniqTeachers = HelperMethods.GetAllTeacherCombinations(teachers).OrderBy(x => x.Count).ToList();
             List<List<Teacher>> res = new List<List<Teacher>>();
-            
+
             foreach (var combo in uniqTeachers)
             {
-                if (CheckTeachersComboForTheDay(students, combo) && CheckForEntryinterruption(res,combo))
+                if (CheckTeachersComboForTheDay(students, combo) && CheckForEntryinterruption(res, combo))
                 {
                     res.Add(combo);
                 }
             }
+
             return res.OrderBy(x => x.Select(y => y.Priority).Sum()).ToList();
         }
+        //public static List<List<Teacher>> GetTeacherComboForTheDay(List<Student> students, List<Teacher> teachers)
+        //{
+        //    // Получаем все комбинации и сортируем по количеству преподавателей
+        //    var uniqTeachers = HelperMethods.GetAllTeacherCombinations(teachers)
+        //                                   .OrderBy(x => x.Count)
+        //                                   .ToList(); // Явное преобразование в List
+
+        //    List<List<Teacher>> res = new List<List<Teacher>>();
+
+        //    foreach (var combo in uniqTeachers)
+        //    {
+        //        if (CheckTeachersComboForTheDay(students, combo) &&
+        //            CheckForEntryinterruption(res, combo))
+        //        {
+        //            res.Add(combo);
+        //        }
+        //    }
+
+        //    // Сортируем по сумме приоритетов и преобразуем в List
+        //    return res.OrderBy(x => x.Sum(y => y.Priority))
+        //             .ToList(); // Ключевое исправление - добавляем ToList()
+        //}
 
         public static bool CheckForEntryinterruption(List<List<Teacher>> res, List<Teacher> combo)
         {
@@ -201,8 +224,10 @@ namespace Shedule
                         validCombinations.Add(combo);
                     }
                 }
-                validCombinations = (List<List<Teacher>>)validCombinations.OrderByDescending(x => x.Select(y => y.Priority).Sum());
-
+                //validCombinations = (List<List<Teacher>>)validCombinations.OrderByDescending(x => x.Select(y => y.Priority).Sum());
+                validCombinations = validCombinations
+    .OrderByDescending(x => x.Sum(y => y.Priority))
+    .ToList();
 
                 // 5. Записываем номера комбинаций для преподавателей
                 for (int t = 0; t < teachers.Count; t++)
